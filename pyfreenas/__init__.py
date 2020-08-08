@@ -22,6 +22,10 @@ class Controller(object):
         self._vms = None
         return self
 
+    async def close(self) -> None:
+        """Closes the conenction to the server."""
+        await self._client.close()
+
     async def refresh(self) -> None:
         self._state = {
             "disks": await self._fetch_disks(),

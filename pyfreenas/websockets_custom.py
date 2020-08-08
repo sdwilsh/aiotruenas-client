@@ -24,10 +24,12 @@ class FreeNASWebSocketClientProtocol(WebSocketClientProtocol):
         }))
         recv = ejson.loads(await self.recv())
         if recv['msg'] != 'connected':
+            await self.close()
             raise websockets.exceptions.NegotiationError('Unable to connect.')
 
         result = await self.invoke_method('auth.login', [self._username, self._password])
         if not result:
+            await self.close()
             raise websockets.exceptions.SecurityError(
                 'Unable to authenticate.')
 
