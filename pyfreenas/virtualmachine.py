@@ -1,8 +1,8 @@
 from enum import Enum, unique
 from typing import TypeVar
 
-TController = TypeVar('TController', bound='Controller')
-TState = TypeVar('TState', bound='VirturalMachineState')
+TController = TypeVar("TController", bound="Controller")
+TState = TypeVar("TState", bound="VirturalMachineState")
 
 
 @unique
@@ -28,35 +28,26 @@ class VirturalMachine(object):
     async def start(self, overcommit: bool = False) -> bool:
         """Starts a stopped virtural machine."""
         result = await self._controller._client.invoke_method(
-            "vm.start",
-            [
-                self._id,
-                {"overcommit": overcommit},
-            ],
+            "vm.start", [self._id, {"overcommit": overcommit},],
         )
         return result
 
     async def stop(self, force: bool = False) -> bool:
         """Stops a running virtural machine."""
         result = await self._controller._client.invoke_method(
-            "vm.stop",
-            [
-                self._id,
-                force,
-            ],
+            "vm.stop", [self._id, force,],
         )
         if result:
             self._controller._state["vms"][self._id]["status"] = {
-                "pid": None, "state": str(VirturalMachineState.STOPPED)}
+                "pid": None,
+                "state": str(VirturalMachineState.STOPPED),
+            }
         return result
 
     async def restart(self) -> bool:
         """Restarts a running virtural machine."""
         result = await self._controller._client.invoke_method(
-            "vm.restart",
-            [
-                self._id,
-            ],
+            "vm.restart", [self._id,],
         )
         return result
 

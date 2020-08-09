@@ -45,16 +45,13 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
     def setUp(self):
         self._server = FreeNASServer()
         self._server.register_method_handler(
-            "disk.query",
-            self._default_disk_query_result,
+            "disk.query", self._default_disk_query_result,
         )
         self._server.register_method_handler(
-            "disk.temperatures",
-            self._default_disk_temperatures_result,
+            "disk.temperatures", self._default_disk_temperatures_result,
         )
         self._server.register_method_handler(
-            "vm.query",
-            self._default_vm_query_result,
+            "vm.query", self._default_vm_query_result,
         )
 
     async def asyncSetUp(self):
@@ -68,7 +65,9 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
         await self._controller.close()
         await self._server.stop()
 
-    def _default_disk_query_result(self, *args, **kwargs) -> List[Dict[str, Union[str, int]]]:
+    def _default_disk_query_result(
+        self, *args, **kwargs
+    ) -> List[Dict[str, Union[str, int]]]:
         return [
             {
                 "description": "Some Desc",
@@ -84,7 +83,7 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
                 "name": "da0",
                 "serial": "WD-NOTAREALSERIAL",
                 "size": 6001175126016,
-                "type": "HDD"
+                "type": "HDD",
             },
         ]
 
@@ -113,17 +112,14 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
     async def test_refresh(self):
         await self._controller.refresh()
         self.assertEqual(
-            len(self._default_disk_query_result()),
-            len(self._controller.disks),
+            len(self._default_disk_query_result()), len(self._controller.disks),
         )
         for disk in self._controller.disks:
             self.assertEqual(
-                self._default_disk_temperatures_result()[disk.name],
-                disk.temperature,
+                self._default_disk_temperatures_result()[disk.name], disk.temperature,
             )
         self.assertEqual(
-            len(self._default_vm_query_result()),
-            len(self._controller.vms),
+            len(self._default_vm_query_result()), len(self._controller.vms),
         )
 
 
