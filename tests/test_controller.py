@@ -3,7 +3,12 @@ import websockets
 
 from unittest import IsolatedAsyncioTestCase
 from pyfreenas import Controller
-from tests.fakes.fakeserver import FreeNASServer
+from tests.fakes.fakeserver import (
+    FreeNASServer,
+    TDiskQueryResult,
+    TDiskTemperaturesResult,
+    TVmQueryResult,
+)
 from typing import (
     Any,
     Dict,
@@ -65,9 +70,7 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
         await self._controller.close()
         await self._server.stop()
 
-    def _default_disk_query_result(
-        self, *args, **kwargs
-    ) -> List[Dict[str, Union[str, int]]]:
+    def _default_disk_query_result(self, *args, **kwargs) -> TDiskQueryResult:
         return [
             {
                 "description": "Some Desc",
@@ -87,13 +90,15 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
             },
         ]
 
-    def _default_disk_temperatures_result(self, *args, **kwargs) -> Dict[str, int]:
+    def _default_disk_temperatures_result(
+        self, *args, **kwargs
+    ) -> TDiskTemperaturesResult:
         return {
             "ada0": 34,
             "da0": 29,
         }
 
-    def _default_vm_query_result(self, *args, **kwargs) -> List[Dict[str, Any]]:
+    def _default_vm_query_result(self, *args, **kwargs) -> TVmQueryResult:
         return [
             {
                 "description": "Some Desc",

@@ -6,10 +6,22 @@ import string
 import uuid
 import websockets
 
-from typing import Any, Callable, Dict, List, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    TypeVar,
+    Union,
+)
 
 TServer = TypeVar("TServer", bound="FreeNASServer")
+
 TMethodHandler = Callable[[List[Any]], Any]
+
+TDiskQueryResult = List[Dict[str, Union[str, int]]]
+TDiskTemperaturesResult = Dict[str, int]
+TVmQueryResult = List[Dict[str, Any]]
 
 DEFAULT_SYSTEM_INFO = {
     "boottime": datetime.datetime(
