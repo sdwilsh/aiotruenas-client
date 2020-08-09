@@ -118,7 +118,7 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
             len(self._controller.disks),
         )
         for disk in self._controller.disks:
-            self.assertEquals(
+            self.assertEqual(
                 self._default_disk_temperatures_result()[disk.name],
                 disk.temperature,
             )
