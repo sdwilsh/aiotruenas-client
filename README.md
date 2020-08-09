@@ -1,3 +1,5 @@
+![Python package](https://github.com/sdwilsh/py-freenas/workflows/Python%20package/badge.svg)
+
 # Python Module for FreeNAS Websocket API
 
 ## Development

@@ -25,4 +25,5 @@ setup(
     license="MIT",
     description="A Python module for the FreeNAS websocket API.",
     platforms="Cross Platform",
+    python_requires=">3.8, <4",
 )
