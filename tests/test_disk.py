@@ -41,6 +41,7 @@ class TestDisk(IsolatedAsyncioTestCase):
     async def test_ssd_data_interpretation(self) -> None:
         DESCRIPTION = "Some Desc"
         MODEL = "Samsung SSD 860 EVO 250GB"
+        NAME = "ada0"
         SERIAL = "NOTREALSERIAL"
         SIZE = 250059350016
         TEMPERATURE = 22
@@ -50,7 +51,7 @@ class TestDisk(IsolatedAsyncioTestCase):
                 {
                     "description": DESCRIPTION,
                     "model": MODEL,
-                    "name": "ada0",
+                    "name": NAME,
                     "serial": SERIAL,
                     "size": SIZE,
                     "type": "SSD",
@@ -58,7 +59,7 @@ class TestDisk(IsolatedAsyncioTestCase):
             ],
         )
         self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {"ada0": TEMPERATURE},
+            "disk.temperatures", lambda *args: {NAME: TEMPERATURE},
         )
 
         await self._controller.refresh()
@@ -69,6 +70,7 @@ class TestDisk(IsolatedAsyncioTestCase):
             disk.description, DESCRIPTION,
         )
         self.assertEqual(disk.model, MODEL)
+        self.assertEqual(disk.name, NAME)
         self.assertEqual(disk.serial, SERIAL)
         self.assertEqual(disk.size, SIZE)
         self.assertEqual(disk.temperature, TEMPERATURE)
@@ -77,6 +79,7 @@ class TestDisk(IsolatedAsyncioTestCase):
     async def test_hddd_data_interpretation(self) -> None:
         DESCRIPTION = "Some Desc"
         MODEL = "ATA WDC WD60EFAX-68S"
+        NAME = "da0"
         SERIAL = "NOTREALSERIAL"
         SIZE = 6001175126016
         TEMPERATURE = 24
@@ -86,7 +89,7 @@ class TestDisk(IsolatedAsyncioTestCase):
                 {
                     "description": DESCRIPTION,
                     "model": MODEL,
-                    "name": "da0",
+                    "name": NAME,
                     "serial": SERIAL,
                     "size": SIZE,
                     "type": "HDD",
@@ -94,7 +97,7 @@ class TestDisk(IsolatedAsyncioTestCase):
             ],
         )
         self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {"da0": TEMPERATURE},
+            "disk.temperatures", lambda *args: {NAME: TEMPERATURE},
         )
 
         await self._controller.refresh()
@@ -105,6 +108,7 @@ class TestDisk(IsolatedAsyncioTestCase):
             disk.description, DESCRIPTION,
         )
         self.assertEqual(disk.model, MODEL)
+        self.assertEqual(disk.name, NAME)
         self.assertEqual(disk.serial, SERIAL)
         self.assertEqual(disk.size, SIZE)
         self.assertEqual(disk.temperature, TEMPERATURE)
@@ -138,6 +142,45 @@ class TestDisk(IsolatedAsyncioTestCase):
         )
         await self._controller.refresh()
         self.assertFalse(disk.available)
+
+    async def test_unavailable_caching(self) -> None:
+        """Certain properites have caching even if no longer available"""
+        DESCRIPTION = "Some Desc"
+        MODEL = "ATA WDC WD60EFAX-68S"
+        NAME = "da0"
+        SERIAL = "NOTREALSERIAL"
+        SIZE = 6001175126016
+        self._server.register_method_handler(
+            "disk.query",
+            lambda *args: [
+                {
+                    "description": DESCRIPTION,
+                    "model": MODEL,
+                    "name": NAME,
+                    "serial": SERIAL,
+                    "size": SIZE,
+                    "type": "HDD",
+                },
+            ],
+        )
+        self._server.register_method_handler(
+            "disk.temperatures", lambda *args: {NAME: 42},
+        )
+        await self._controller.refresh()
+        disk = self._controller.disks[0]
+        assert disk is not None
+        self._server.register_method_handler(
+            "disk.query", lambda *args: [], override=True,
+        )
+        await self._controller.refresh()
+
+        self.assertEqual(disk.model, MODEL)
+        self.assertEqual(disk.name, NAME)
+        self.assertEqual(disk.serial, SERIAL)
+        self.assertEqual(disk.size, SIZE)
+        with self.assertRaises(AssertionError):
+            disk.temperature
+        self.assertEqual(disk.type, DiskType.HDD)
 
 
 if __name__ == "__main__":
