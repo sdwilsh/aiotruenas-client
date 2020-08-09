@@ -4,10 +4,8 @@ import websockets
 from unittest import IsolatedAsyncioTestCase
 from pyfreenas import Controller
 from tests.fakes.fakeserver import (
+    CommonQueries,
     FreeNASServer,
-    TDiskQueryResult,
-    TDiskTemperaturesResult,
-    TVmQueryResult,
 )
 from typing import (
     Any,
@@ -50,13 +48,13 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
     def setUp(self):
         self._server = FreeNASServer()
         self._server.register_method_handler(
-            "disk.query", self._default_disk_query_result,
+            "disk.query", CommonQueries.disk_query_result,
         )
         self._server.register_method_handler(
-            "disk.temperatures", self._default_disk_temperatures_result,
+            "disk.temperatures", CommonQueries.disk_temperatures_result,
         )
         self._server.register_method_handler(
-            "vm.query", self._default_vm_query_result,
+            "vm.query", CommonQueries.vm_query_result,
         )
 
     async def asyncSetUp(self):
@@ -70,61 +68,17 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
         await self._controller.close()
         await self._server.stop()
 
-    def _default_disk_query_result(self, *args, **kwargs) -> TDiskQueryResult:
-        return [
-            {
-                "description": "Some Desc",
-                "model": "Samsung SSD 860 EVO 250GB",
-                "name": "ada0",
-                "serial": "NOTREALSERIAL",
-                "size": 250059350016,
-                "type": "SSD",
-            },
-            {
-                "description": "",
-                "model": "ATA WDC WD60EFAX-68S",
-                "name": "da0",
-                "serial": "WD-NOTAREALSERIAL",
-                "size": 6001175126016,
-                "type": "HDD",
-            },
-        ]
-
-    def _default_disk_temperatures_result(
-        self, *args, **kwargs
-    ) -> TDiskTemperaturesResult:
-        return {
-            "ada0": 34,
-            "da0": 29,
-        }
-
-    def _default_vm_query_result(self, *args, **kwargs) -> TVmQueryResult:
-        return [
-            {
-                "description": "Some Desc",
-                "id": 1,
-                "name": "vm01",
-                "status": {"pid": 42, "state": "RUNNING"},
-            },
-            {
-                "description": "",
-                "id": 3,
-                "name": "vm02",
-                "status": {"pid": None, "state": "STOPPED"},
-            },
-        ]
-
     async def test_refresh(self):
         await self._controller.refresh()
         self.assertEqual(
-            len(self._default_disk_query_result()), len(self._controller.disks),
+            len(CommonQueries.disk_query_result()), len(self._controller.disks),
         )
         for disk in self._controller.disks:
             self.assertEqual(
-                self._default_disk_temperatures_result()[disk.name], disk.temperature,
+                CommonQueries.disk_temperatures_result()[disk.name], disk.temperature,
             )
         self.assertEqual(
-            len(self._default_vm_query_result()), len(self._controller.vms),
+            len(CommonQueries.vm_query_result()), len(self._controller.vms),
         )
 
 

@@ -132,3 +132,50 @@ class FreeNASServer(object):
                 )
                 continue
             await fail()
+
+
+class CommonQueries:
+    @classmethod
+    def disk_query_result(cls, *args, **kwargs) -> TDiskQueryResult:
+        return [
+            {
+                "description": "Some Desc",
+                "model": "Samsung SSD 860 EVO 250GB",
+                "name": "ada0",
+                "serial": "NOTREALSERIAL",
+                "size": 250059350016,
+                "type": "SSD",
+            },
+            {
+                "description": "",
+                "model": "ATA WDC WD60EFAX-68S",
+                "name": "da0",
+                "serial": "WD-NOTAREALSERIAL",
+                "size": 6001175126016,
+                "type": "HDD",
+            },
+        ]
+
+    @classmethod
+    def disk_temperatures_result(cls, *args, **kwargs) -> TDiskTemperaturesResult:
+        return {
+            "ada0": 34,
+            "da0": 29,
+        }
+
+    @classmethod
+    def vm_query_result(cls, *args, **kwargs) -> TVmQueryResult:
+        return [
+            {
+                "description": "Some Desc",
+                "id": 1,
+                "name": "vm01",
+                "status": {"pid": 42, "state": "RUNNING"},
+            },
+            {
+                "description": "",
+                "id": 3,
+                "name": "vm02",
+                "status": {"pid": None, "state": "STOPPED"},
+            },
+        ]
