@@ -1,10 +1,9 @@
-import asyncio
-
 from enum import Enum, unique
-from typing import Any, Callable, TypeVar
+from typing import TypeVar
 
 TController = TypeVar("TController", bound="Controller")
 TType = TypeVar("TType", bound="DiskType")
+
 
 @unique
 class DiskType(Enum):
@@ -18,6 +17,7 @@ class DiskType(Enum):
         if value == cls.SSD.value:
             return cls.SSD
         raise Exception(f"Unexpected disk type '{value}'")
+
 
 class Disk(object):
     def __init__(self, controller: TController, name: str) -> None:

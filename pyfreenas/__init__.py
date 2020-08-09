@@ -1,10 +1,14 @@
-import asyncio
 import websockets
 
 from .disk import Disk
 from .virtualmachine import VirturalMachine
 from .websockets_custom import FreeNASWebSocketClientProtocol, freenas_auth_protocol_factory
-from typing import Any, Callable, Dict, List, TypeVar
+from typing import (
+    Any,
+    Dict,
+    List,
+    TypeVar,
+)
 
 T = TypeVar('T', bound='Controller')
 
@@ -15,7 +19,10 @@ class Controller(object):
     @classmethod
     async def create(cls, host: str, password: str, username: str = 'root') -> T:
         self = Controller()
-        self._client = await websockets.connect(f"ws://{host}/websocket", create_protocol=freenas_auth_protocol_factory(username, password))
+        self._client = await websockets.connect(
+            f"ws://{host}/websocket",
+            create_protocol=freenas_auth_protocol_factory(username, password),
+        )
         self._info = await self._client.invoke_method("system.info")
         self._state = None
         self._disks = None

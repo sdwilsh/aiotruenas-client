@@ -33,7 +33,7 @@ class FreeNASWebSocketClientProtocol(WebSocketClientProtocol):
             raise websockets.exceptions.SecurityError(
                 'Unable to authenticate.')
 
-    async def invoke_method(self, method: str, params: List[Any]=[]) -> Any:
+    async def invoke_method(self, method: str, params: List[Any] = []) -> Any:
         async with self._method_lock:
             id = str(uuid.uuid4())
             await super().send(ejson.dumps({

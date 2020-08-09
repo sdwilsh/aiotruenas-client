@@ -84,7 +84,7 @@ class FreeNASServer(object):
     @property
     def host(self) -> str:
         """The host to use to connect to this server."""
-        return f"localhost:8000"
+        return "localhost:8000"
 
     async def _handle_messages(self, websocket: websockets.protocol.WebSocketCommonProtocol, _path: str):
         async def send(data: object) -> None:
