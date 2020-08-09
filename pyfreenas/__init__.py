@@ -61,11 +61,12 @@ class Controller(object):
             ],
         )
         disks = {disk["name"]: disk for disk in disks}
-        temps = await self._client.invoke_method(
-            "disk.temperatures", [[disk for disk in disks],],
-        )
-        for name, temp in temps.items():
-            disks[name]["temperature"] = temp
+        if len(disks) > 0:
+            temps = await self._client.invoke_method(
+                "disk.temperatures", [[disk for disk in disks],],
+            )
+            for name, temp in temps.items():
+                disks[name]["temperature"] = temp
 
         return disks
 

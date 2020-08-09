@@ -110,6 +110,35 @@ class TestDisk(IsolatedAsyncioTestCase):
         self.assertEqual(disk.temperature, TEMPERATURE)
         self.assertEqual(disk.type, DiskType.HDD)
 
+    async def test_availability(self) -> None:
+        self._server.register_method_handler(
+            "disk.query",
+            lambda *args: [
+                {
+                    "description": "Some Desc",
+                    "model": "Samsung SSD 860 EVO 250GB",
+                    "name": "ada0",
+                    "serial": "NOTREALSERIAL",
+                    "size": 250059350016,
+                    "type": "SSD",
+                },
+            ],
+        )
+        self._server.register_method_handler(
+            "disk.temperatures", lambda *args: {"ada0": 42},
+        )
+
+        await self._controller.refresh()
+
+        disk = self._controller.disks[0]
+        self.assertTrue(disk.available)
+
+        self._server.register_method_handler(
+            "disk.query", lambda *args: [], override=True,
+        )
+        await self._controller.refresh()
+        self.assertFalse(disk.available)
+
 
 if __name__ == "__main__":
     unittest.main()
