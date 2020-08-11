@@ -28,11 +28,11 @@ await machine.refresh()
 
 Object representing a FreeNAS instance.
 
-### `Disks`
+### `Disk`s
 
 Available from `machine.disks`, contains information about the disks attached to the machine.
 
-### `VirturalMachines`
+### `VirturalMachine`s
 
 Available from `machine.vms`, contains information about the virtural machines available on the machine.
 
