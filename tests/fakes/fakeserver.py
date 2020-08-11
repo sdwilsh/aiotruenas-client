@@ -63,11 +63,10 @@ class FreeNASServer(object):
         self._method_handlers = {}
 
         self.register_method_handler(
-            "auth.login",
-            lambda args: args[0] == self.username and args[1] == self.password,
+            "auth.login", lambda u, p: u == self.username and p == self.password,
         )
         self.register_method_handler(
-            "system.info", lambda _args: system_info,
+            "system.info", lambda: system_info,
         )
 
         self._serve_handle = websockets.serve(self._handle_messages, "localhost", 8000)
@@ -127,7 +126,9 @@ class FreeNASServer(object):
                     {
                         "id": data["id"],
                         "msg": "result",
-                        "result": self._method_handlers[data["method"]](data["params"]),
+                        "result": self._method_handlers[data["method"]](
+                            *data["params"]
+                        ),
                     }
                 )
                 continue
