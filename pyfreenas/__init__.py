@@ -13,15 +13,15 @@ from typing import (
     TypeVar,
 )
 
-T = TypeVar("T", bound="Controller")
+T = TypeVar("T", bound="Machine")
 
 
-class Controller(object):
+class Machine(object):
     _client: FreeNASWebSocketClientProtocol
 
     @classmethod
     async def create(cls, host: str, password: str, username: str = "root") -> T:
-        self = Controller()
+        self = Machine()
         self._client = await websockets.connect(
             f"ws://{host}/websocket",
             create_protocol=freenas_auth_protocol_factory(username, password),
@@ -84,7 +84,7 @@ class Controller(object):
         current_disk_names = {disk_name for disk_name in self._state["disks"]}
         disk_names_to_add = current_disk_names - set(available_disks_by_name)
         self._disks = [*available_disks_by_name.values()] + [
-            Disk(controller=self, name=disk_name) for disk_name in disk_names_to_add
+            Disk(machine=self, name=disk_name) for disk_name in disk_names_to_add
         ]
 
         # Virtural Machines
@@ -92,7 +92,7 @@ class Controller(object):
         current_vm_ids = {vm_id for vm_id in self._state["vms"]}
         vm_ids_to_add = current_vm_ids - set(available_vms_by_id)
         self._vms = [*available_vms_by_id.values()] + [
-            VirturalMachine(controller=self, id=vm_id) for vm_id in vm_ids_to_add
+            VirturalMachine(machine=self, id=vm_id) for vm_id in vm_ids_to_add
         ]
 
     @property

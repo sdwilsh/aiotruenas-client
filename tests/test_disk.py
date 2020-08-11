@@ -1,7 +1,7 @@
 import unittest
 
 from unittest import IsolatedAsyncioTestCase
-from pyfreenas import Controller
+from pyfreenas import Machine
 from pyfreenas.disk import Disk, DiskType
 from tests.fakes.fakeserver import (
     FreeNASServer,
@@ -19,7 +19,7 @@ from typing import (
 
 class TestDisk(IsolatedAsyncioTestCase):
     _server: FreeNASServer
-    _controller: Controller
+    _machine: Machine
 
     def setUp(self):
         self._server = FreeNASServer()
@@ -28,14 +28,14 @@ class TestDisk(IsolatedAsyncioTestCase):
         )
 
     async def asyncSetUp(self):
-        self._controller = await Controller.create(
+        self._machine = await Machine.create(
             self._server.host,
             username=self._server.username,
             password=self._server.password,
         )
 
     async def asyncTearDown(self):
-        await self._controller.close()
+        await self._machine.close()
         await self._server.stop()
 
     async def test_ssd_data_interpretation(self) -> None:
@@ -62,10 +62,10 @@ class TestDisk(IsolatedAsyncioTestCase):
             "disk.temperatures", lambda *args: {NAME: TEMPERATURE},
         )
 
-        await self._controller.refresh()
+        await self._machine.refresh()
 
-        self.assertEqual(len(self._controller.disks), 1)
-        disk = self._controller.disks[0]
+        self.assertEqual(len(self._machine.disks), 1)
+        disk = self._machine.disks[0]
         self.assertEqual(
             disk.description, DESCRIPTION,
         )
@@ -100,10 +100,10 @@ class TestDisk(IsolatedAsyncioTestCase):
             "disk.temperatures", lambda *args: {NAME: TEMPERATURE},
         )
 
-        await self._controller.refresh()
+        await self._machine.refresh()
 
-        self.assertEqual(len(self._controller.disks), 1)
-        disk = self._controller.disks[0]
+        self.assertEqual(len(self._machine.disks), 1)
+        disk = self._machine.disks[0]
         self.assertEqual(
             disk.description, DESCRIPTION,
         )
@@ -132,17 +132,17 @@ class TestDisk(IsolatedAsyncioTestCase):
             "disk.temperatures", lambda *args: {"ada0": 42},
         )
 
-        await self._controller.refresh()
+        await self._machine.refresh()
 
-        disk = self._controller.disks[0]
+        disk = self._machine.disks[0]
         self.assertTrue(disk.available)
 
         self._server.register_method_handler(
             "disk.query", lambda *args: [], override=True,
         )
-        await self._controller.refresh()
+        await self._machine.refresh()
         self.assertFalse(disk.available)
-        self.assertEqual(len(self._controller._disks), 0)
+        self.assertEqual(len(self._machine._disks), 0)
 
     async def test_unavailable_caching(self) -> None:
         """Certain properites have caching even if no longer available"""
@@ -167,13 +167,13 @@ class TestDisk(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "disk.temperatures", lambda *args: {NAME: 42},
         )
-        await self._controller.refresh()
-        disk = self._controller.disks[0]
+        await self._machine.refresh()
+        disk = self._machine.disks[0]
         assert disk is not None
         self._server.register_method_handler(
             "disk.query", lambda *args: [], override=True,
         )
-        await self._controller.refresh()
+        await self._machine.refresh()
 
         self.assertEqual(disk.model, MODEL)
         self.assertEqual(disk.name, NAME)
@@ -200,10 +200,10 @@ class TestDisk(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "disk.temperatures", lambda *args: {"ada0": 42},
         )
-        await self._controller.refresh()
-        original_disk = self._controller.disks[0]
-        await self._controller.refresh()
-        new_disk = self._controller.disks[0]
+        await self._machine.refresh()
+        original_disk = self._machine.disks[0]
+        await self._machine.refresh()
+        new_disk = self._machine.disks[0]
         self.assertIs(original_disk, new_disk)
 
 

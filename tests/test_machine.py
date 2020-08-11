@@ -2,7 +2,7 @@ import unittest
 import websockets
 
 from unittest import IsolatedAsyncioTestCase
-from pyfreenas import Controller
+from pyfreenas import Machine
 from tests.fakes.fakeserver import (
     CommonQueries,
     FreeNASServer,
@@ -15,7 +15,7 @@ from typing import (
 )
 
 
-class TestControllerAuth(IsolatedAsyncioTestCase):
+class TestMachineAuth(IsolatedAsyncioTestCase):
     _server: FreeNASServer
 
     def setUp(self):
@@ -25,25 +25,25 @@ class TestControllerAuth(IsolatedAsyncioTestCase):
         await self._server.stop()
 
     async def test_successful_auth(self):
-        controller = await Controller.create(
+        machine = await Machine.create(
             self._server.host,
             username=self._server.username,
             password=self._server.password,
         )
-        await controller.close()
+        await machine.close()
 
     async def test_unsuccessful_auth(self):
         with self.assertRaises(websockets.exceptions.SecurityError):
-            await Controller.create(
+            await Machine.create(
                 self._server.host,
                 username="not a real user",
                 password=self._server.password,
             )
 
 
-class TestControllerRefresh(IsolatedAsyncioTestCase):
+class TestMachineRefresh(IsolatedAsyncioTestCase):
     _server: FreeNASServer
-    _controller: Controller
+    _machine: Machine
 
     def setUp(self):
         self._server = FreeNASServer()
@@ -58,27 +58,27 @@ class TestControllerRefresh(IsolatedAsyncioTestCase):
         )
 
     async def asyncSetUp(self):
-        self._controller = await Controller.create(
+        self._machine = await Machine.create(
             self._server.host,
             username=self._server.username,
             password=self._server.password,
         )
 
     async def asyncTearDown(self):
-        await self._controller.close()
+        await self._machine.close()
         await self._server.stop()
 
     async def test_refresh(self):
-        await self._controller.refresh()
+        await self._machine.refresh()
         self.assertEqual(
-            len(CommonQueries.disk_query_result()), len(self._controller.disks),
+            len(CommonQueries.disk_query_result()), len(self._machine.disks),
         )
-        for disk in self._controller.disks:
+        for disk in self._machine.disks:
             self.assertEqual(
                 CommonQueries.disk_temperatures_result()[disk.name], disk.temperature,
             )
         self.assertEqual(
-            len(CommonQueries.vm_query_result()), len(self._controller.vms),
+            len(CommonQueries.vm_query_result()), len(self._machine.vms),
         )
 
 

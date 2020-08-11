@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from typing import TypeVar
 
-TController = TypeVar("TController", bound="Controller")
+TMachine = TypeVar("TMachine", bound="Machine")
 TType = TypeVar("TType", bound="DiskType")
 
 
@@ -20,15 +20,15 @@ class DiskType(Enum):
 
 
 class Disk(object):
-    def __init__(self, controller: TController, name: str) -> None:
-        self._controller = controller
+    def __init__(self, machine: TMachine, name: str) -> None:
+        self._machine = machine
         self._name = name
         self._cached_state = self._state
 
     @property
     def available(self) -> bool:
         """If the disk exists on the server."""
-        return self._name in self._controller._state["disks"]
+        return self._name in self._machine._state["disks"]
 
     @property
     def description(self) -> str:
@@ -86,5 +86,5 @@ class Disk(object):
 
     @property
     def _state(self) -> dict:
-        """The state of the desk, according to the Controller."""
-        return self._controller._state["disks"][self._name]
+        """The state of the desk, according to the Machine."""
+        return self._machine._state["disks"][self._name]

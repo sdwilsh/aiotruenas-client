@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from typing import TypeVar
 
-TController = TypeVar("TController", bound="Controller")
+TMachine = TypeVar("TMachine", bound="Machine")
 TState = TypeVar("TState", bound="VirturalMachineState")
 
 
@@ -20,25 +20,25 @@ class VirturalMachineState(Enum):
 
 
 class VirturalMachine(object):
-    def __init__(self, controller: TController, id: int) -> None:
-        self._controller = controller
+    def __init__(self, machine: TMachine, id: int) -> None:
+        self._machine = machine
         self._id = id
         self._cached_state = self._state
 
     async def start(self, overcommit: bool = False) -> bool:
         """Starts a stopped virtural machine."""
-        result = await self._controller._client.invoke_method(
+        result = await self._machine._client.invoke_method(
             "vm.start", [self._id, {"overcommit": overcommit},],
         )
         return result
 
     async def stop(self, force: bool = False) -> bool:
         """Stops a running virtural machine."""
-        result = await self._controller._client.invoke_method(
+        result = await self._machine._client.invoke_method(
             "vm.stop", [self._id, force,],
         )
         if result:
-            self._controller._state["vms"][self._id]["status"] = {
+            self._machine._state["vms"][self._id]["status"] = {
                 "pid": None,
                 "state": str(VirturalMachineState.STOPPED),
             }
@@ -46,15 +46,13 @@ class VirturalMachine(object):
 
     async def restart(self) -> bool:
         """Restarts a running virtural machine."""
-        result = await self._controller._client.invoke_method(
-            "vm.restart", [self._id,],
-        )
+        result = await self._machine._client.invoke_method("vm.restart", [self._id,],)
         return result
 
     @property
     def available(self) -> bool:
         """If the virtural machine exists on the server."""
-        return self._id in self._controller._state["vms"]
+        return self._id in self._machine._state["vms"]
 
     @property
     def description(self) -> str:
@@ -85,5 +83,5 @@ class VirturalMachine(object):
 
     @property
     def _state(self) -> dict:
-        """The state of the virtural machine, according to the Controller."""
-        return self._controller._state["vms"][self._id]
+        """The state of the virtural machine, according to the Machine."""
+        return self._machine._state["vms"][self._id]
