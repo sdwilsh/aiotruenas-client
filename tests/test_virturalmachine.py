@@ -134,6 +134,89 @@ class TestVirturalMachine(IsolatedAsyncioTestCase):
         with self.assertRaises(AssertionError):
             vm.status
 
+    async def test_start(self) -> None:
+        ID = 42
+        self._server.register_method_handler(
+            "vm.query",
+            lambda *args: [
+                {
+                    "description": "Some Desc",
+                    "id": 42,
+                    "name": "vm01",
+                    "status": {"pid": None, "state": "STOPPED"},
+                },
+            ],
+        )
+
+        def start_handler(id, kwargs) -> None:
+            self.assertEqual(id, ID)
+            self.assertFalse(kwargs["overcommit"])
+            return None
+
+        self._server.register_method_handler(
+            "vm.start", start_handler,
+        )
+        await self._controller.refresh()
+        vm = self._controller.vms[0]
+        assert vm is not None
+
+        self.assertEqual(await vm.start(), None)
+
+    async def test_stop(self) -> None:
+        ID = 42
+        self._server.register_method_handler(
+            "vm.query",
+            lambda *args: [
+                {
+                    "description": "Some Desc",
+                    "id": 42,
+                    "name": "vm01",
+                    "status": {"pid": 10, "state": "RUNNING"},
+                },
+            ],
+        )
+
+        def stop_handler(id, force) -> bool:
+            self.assertEqual(id, ID)
+            self.assertFalse(force)
+            return True
+
+        self._server.register_method_handler(
+            "vm.stop", stop_handler,
+        )
+        await self._controller.refresh()
+        vm = self._controller.vms[0]
+        assert vm is not None
+
+        self.assertTrue(await vm.stop())
+
+    async def test_restart(self) -> None:
+        ID = 42
+        self._server.register_method_handler(
+            "vm.query",
+            lambda *args: [
+                {
+                    "description": "Some Desc",
+                    "id": 42,
+                    "name": "vm01",
+                    "status": {"pid": 10, "state": "RUNNING"},
+                },
+            ],
+        )
+
+        def restart_handler(id) -> bool:
+            self.assertEqual(id, ID)
+            return True
+
+        self._server.register_method_handler(
+            "vm.restart", restart_handler,
+        )
+        await self._controller.refresh()
+        vm = self._controller.vms[0]
+        assert vm is not None
+
+        self.assertTrue(await vm.restart())
+
 
 if __name__ == "__main__":
     unittest.main()
