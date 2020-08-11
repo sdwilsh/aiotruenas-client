@@ -7,7 +7,9 @@ This python module utilizes the [FreeNAS Websocket API](https://api.ixsystems.co
 
 ## Installation
 
-[coming soon]
+```
+pip install pyfreenas
+```
 
 ## Usage
 
