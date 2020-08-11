@@ -28,8 +28,8 @@ class Controller(object):
         )
         self._info = await self._client.invoke_method("system.info")
         self._state = None
-        self._disks = None
-        self._vms = None
+        self._disks = []
+        self._vms = []
         return self
 
     async def close(self) -> None:
@@ -77,11 +77,22 @@ class Controller(object):
         return {vm["id"]: vm for vm in vms}
 
     def _update_properties_from_state(self) -> None:
-        self._disks = [
-            Disk(controller=self, name=disk_name) for disk_name in self._state["disks"]
+        # Disks
+        available_disks_by_name = {
+            disk.name: disk for disk in self._disks if disk.available
+        }
+        current_disk_names = {disk_name for disk_name in self._state["disks"]}
+        disk_names_to_add = current_disk_names - set(available_disks_by_name)
+        self._disks = [*available_disks_by_name.values()] + [
+            Disk(controller=self, name=disk_name) for disk_name in disk_names_to_add
         ]
-        self._vms = [
-            VirturalMachine(controller=self, id=vm_id) for vm_id in self._state["vms"]
+
+        # Virtural Machines
+        available_vms_by_id = {vm.id: vm for vm in self._vms if vm.available}
+        current_vm_ids = {vm_id for vm_id in self._state["vms"]}
+        vm_ids_to_add = current_vm_ids - set(available_vms_by_id)
+        self._vms = [*available_vms_by_id.values()] + [
+            VirturalMachine(controller=self, id=vm_id) for vm_id in vm_ids_to_add
         ]
 
     @property

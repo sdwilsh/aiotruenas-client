@@ -142,6 +142,7 @@ class TestDisk(IsolatedAsyncioTestCase):
         )
         await self._controller.refresh()
         self.assertFalse(disk.available)
+        self.assertEqual(len(self._controller._disks), 0)
 
     async def test_unavailable_caching(self) -> None:
         """Certain properites have caching even if no longer available"""
@@ -181,6 +182,29 @@ class TestDisk(IsolatedAsyncioTestCase):
         with self.assertRaises(AssertionError):
             disk.temperature
         self.assertEqual(disk.type, DiskType.HDD)
+
+    async def test_same_instance_after_refresh(self) -> None:
+        self._server.register_method_handler(
+            "disk.query",
+            lambda *args: [
+                {
+                    "description": "Some Desc",
+                    "model": "Samsung SSD 860 EVO 250GB",
+                    "name": "ada0",
+                    "serial": "NOTREALSERIAL",
+                    "size": 250059350016,
+                    "type": "SSD",
+                },
+            ],
+        )
+        self._server.register_method_handler(
+            "disk.temperatures", lambda *args: {"ada0": 42},
+        )
+        await self._controller.refresh()
+        original_disk = self._controller.disks[0]
+        await self._controller.refresh()
+        new_disk = self._controller.disks[0]
+        self.assertIs(original_disk, new_disk)
 
 
 if __name__ == "__main__":

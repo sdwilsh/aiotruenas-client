@@ -103,6 +103,7 @@ class TestVirturalMachine(IsolatedAsyncioTestCase):
         )
         await self._controller.refresh()
         self.assertFalse(vm.available)
+        self.assertEqual(len(self._controller.vms), 0)
 
     async def test_unavailable_caching(self) -> None:
         """Certain properites have caching even if no longer available"""
@@ -133,6 +134,24 @@ class TestVirturalMachine(IsolatedAsyncioTestCase):
         self.assertEqual(vm.name, NAME)
         with self.assertRaises(AssertionError):
             vm.status
+
+    async def test_same_instance_after_refresh(self) -> None:
+        self._server.register_method_handler(
+            "vm.query",
+            lambda *args: [
+                {
+                    "description": "Some Desc",
+                    "id": 1,
+                    "name": "vm01",
+                    "status": {"pid": 42, "state": "RUNNING"},
+                },
+            ],
+        )
+        await self._controller.refresh()
+        original_vm = self._controller.vms[0]
+        await self._controller.refresh()
+        new_vm = self._controller.vms[0]
+        self.assertIs(original_vm, new_vm)
 
     async def test_start(self) -> None:
         ID = 42
