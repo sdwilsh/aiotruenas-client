@@ -3,6 +3,42 @@
 
 # Python Module for FreeNAS Websocket API
 
+This python module utilizes the [FreeNAS Websocket API](https://api.ixsystems.com/freenas/) to get state from a FreeNAS instance.
+
+## Installation
+
+[coming soon]
+
+## Usage
+
+```python
+from pyfreenas import Machine as FreeNASMachine
+
+machine = await Machine.create(
+    "hostname.of.machine",
+    username="someuser",
+    password="password",
+)
+await machine.refresh()
+```
+
+### `Machine`
+
+Object representing a FreeNAS instance.
+
+### `Disks`
+
+Available from `machine.disks`, contains information about the disks attached to the machine.
+
+### `VirturalMachines`
+
+Available from `machine.vms`, contains information about the virtural machines available on the machine.
+
+Each instance has the following methods availabe:
+* `vm.start`
+* `vm.stop`
+* `vm.restart`
+
 ## Development
 
 ```
