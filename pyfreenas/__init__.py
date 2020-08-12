@@ -10,6 +10,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Optional,
     TypeVar,
 )
 
@@ -17,24 +18,39 @@ T = TypeVar("T", bound="Machine")
 
 
 class Machine(object):
-    _client: FreeNASWebSocketClientProtocol
+    _client: Optional[FreeNASWebSocketClientProtocol] = None
+    _state: Dict[str, Any] = {}
+    _disks: List[Disk] = []
+    _vms: List[VirturalMachine] = []
+    _info: Dict[str, Any] = {}
 
     @classmethod
     async def create(cls, host: str, password: str, username: str = "root") -> T:
-        self = Machine()
+        m = Machine()
+        await m.connect(host=host, password=password, username=username)
+        return m
+
+    async def connect(self, host: str, password: str, username: str) -> None:
+        """Connects to the remote machine."""
+        assert self._client is None
         self._client = await websockets.connect(
             f"ws://{host}/websocket",
             create_protocol=freenas_auth_protocol_factory(username, password),
         )
         self._info = await self._client.invoke_method("system.info")
-        self._state = None
-        self._disks = []
-        self._vms = []
-        return self
 
     async def close(self) -> None:
         """Closes the conenction to the server."""
+        assert self._client is not None
         await self._client.close()
+        self._client = None
+        self._state = {
+            "disks": {},
+            "vms": {},
+        }
+        self._disks = []
+        self._vms = []
+        self._info = {}
 
     async def refresh(self) -> None:
         self._state = {
@@ -44,6 +60,7 @@ class Machine(object):
         self._update_properties_from_state()
 
     async def _fetch_disks(self) -> Dict[str, dict]:
+        assert self._client is not None
         disks = await self._client.invoke_method(
             "disk.query",
             [
@@ -71,6 +88,7 @@ class Machine(object):
         return disks
 
     async def _fetch_vms(self) -> Dict[str, dict]:
+        assert self._client is not None
         vms = await self._client.invoke_method(
             "vm.query", [[], {"select": ["id", "name", "description", "status",],},],
         )
