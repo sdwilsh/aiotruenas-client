@@ -90,3 +90,6 @@ class VirturalMachine(object):
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self.id.__eq__(other.id)
+
+    def __hash__(self):
+        return self.id.__hash__()
