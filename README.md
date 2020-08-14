@@ -43,6 +43,8 @@ Each instance has the following methods availabe:
 
 ## Development
 
+### Setup
+
 ```
 python3.8 -m venv .venv
 source .venv/bin/activate
@@ -56,3 +58,23 @@ pip install -r requirements-dev.txt
 # One-Time Install of Commit Hooks
 pre-commit install
 ```
+
+### Working With Methods
+
+When adding support for a new object, or updating existing code, it can be useful to see the raw response from the
+FreeNAS machine from time to time.  In order to help do that easily, you can drop a `.auth.yaml` file in the root of
+the repository, with the following content:
+
+```
+host: "some.host.name"
+username: "someuser"
+password: "somepassword"
+```
+
+Then use `invoke_method.py` to call a method:
+
+```
+python invoke_method.py disk.query
+```
+
+Run it with -h to see additional options.
