@@ -49,10 +49,7 @@ class Disk(object):
     @property
     def name(self) -> str:
         """The name of the disk."""
-        if self.available:
-            self._cached_state = self._state
-            return self._state["name"]
-        return self._cached_state["name"]
+        return self._name
 
     @property
     def serial(self) -> str:
