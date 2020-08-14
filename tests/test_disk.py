@@ -1,6 +1,7 @@
 import unittest
 
 from unittest import IsolatedAsyncioTestCase
+from unittest.mock import Mock
 from pyfreenas import Machine
 from pyfreenas.disk import Disk, DiskType
 from tests.fakes.fakeserver import (
@@ -205,6 +206,22 @@ class TestDisk(IsolatedAsyncioTestCase):
         await self._machine.refresh()
         new_disk = self._machine.disks[0]
         self.assertIs(original_disk, new_disk)
+
+    def test_eq_impl(self) -> None:
+        self._machine._state["disks"] = {
+            "ada0": {
+                "description": "",
+                "model": "",
+                "name": "ada0",
+                "serial": "someserial",
+                "size": 256,
+                "temperature": 42,
+                "type": "SSD",
+            }
+        }
+        a = Disk(self._machine, "ada0")
+        b = Disk(self._machine, "ada0")
+        self.assertEqual(a, b)
 
 
 if __name__ == "__main__":

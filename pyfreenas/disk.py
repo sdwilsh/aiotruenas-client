@@ -85,3 +85,8 @@ class Disk(object):
     def _state(self) -> dict:
         """The state of the desk, according to the Machine."""
         return self._machine._state["disks"][self._name]
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.serial.__eq__(other.serial)
