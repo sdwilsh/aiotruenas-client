@@ -99,27 +99,20 @@ class Machine(object):
                 [],
                 {
                     "select": [
-                        #"deduplication",
-                        #"encryption",
-                        #"encryption_options",
+                        "encrypt",
+                        "encryptkey",
+                        "guid",
+                        "id",
+                        "is_decrypted",
                         "name",
-                        #"topology",
+                        "scan",
+                        "status",
+                        "topology",
                     ],
                 },
             ],
         )
-        pools = {pool["name"]: pool for pool in pools}
-        if len(pools) > 0:
-            pass
-            '''
-            temps = await self._client.invoke_method(
-                "disk.temperatures", [[disk for disk in disks],],
-            )
-            for name, temp in temps.items():
-                disks[name]["temperature"] = temp
-            '''
-
-        return pools
+        return {pool["id"]: pool for pool in pools}
 
     async def _fetch_vms(self) -> Dict[str, dict]:
         assert self._client is not None
@@ -129,8 +122,6 @@ class Machine(object):
         return {vm["id"]: vm for vm in vms}
 
     def _update_properties_from_state(self) -> None:
-        # Fixme: Can we apply some magic here
-        # to avoid duplication of code?
         # Disks
         available_disks_by_name = {
             disk.name: disk for disk in self._disks if disk.available
@@ -142,13 +133,12 @@ class Machine(object):
         ]
 
         # Pools
-        #available_pools_by_name = {pool.name: pool for pool in self._pools if pool.available}
-        # Fixme: Why not a list of current_pool_ids?
-        #current_pool_names = {pool_name for pool_name in self._state["pools"]}
-        #pool_names_to_add = current_pool_names - set(available_pools_by_name)
-        #self._pools = [*available_pools_by_names.values()] + [
-        #    Pool(machine=self, name=pool_name) for pool_name in pool_names_to_add
-        #]
+        available_pools_by_id = {pool.id: pool for pool in self._pools if pool.available}
+        current_pool_ids = {pool_id for pool_id in self._state["pools"]}
+        pool_ids_to_add = current_pool_ids - set(available_pools_by_id)
+        self._pools = [*available_pools_by_ids.values()] + [
+            Pool(machine=self, id=pool_id) for pool_id in pool_ids_to_add
+        ]
 
         # Virtural Machines
         available_vms_by_id = {vm.id: vm for vm in self._vms if vm.available}
