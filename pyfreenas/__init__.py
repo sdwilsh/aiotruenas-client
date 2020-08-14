@@ -26,19 +26,23 @@ class Machine(object):
     _info: Dict[str, Any] = {}
 
     @classmethod
-    async def create(cls, host: str, password: str, username: str = "root", secure: bool = True) -> T:
+    async def create(
+        cls, host: str, password: str, username: str = "root", secure: bool = True
+    ) -> T:
         m = Machine()
         await m.connect(host=host, password=password, username=username, secure=secure)
         return m
 
-    async def connect(self, host: str, password: str, username: str, secure: bool) -> None:
+    async def connect(
+        self, host: str, password: str, username: str, secure: bool
+    ) -> None:
         """Connects to the remote machine."""
         assert self._client is None
         if not secure:
-            protocol = 'ws'
+            protocol = "ws"
             context = None
         else:
-            protocol = 'wss'
+            protocol = "wss"
             context = ssl.SSLContext()
         self._client = await websockets.connect(
             f"{protocol}://{host}/websocket",
