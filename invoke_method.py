@@ -17,7 +17,9 @@ def init_argparse() -> argparse.ArgumentParser:
         description="Invoke methods on a remote FreeNAS machine.",
     )
     parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("-i", "--insecure", action="store_true", help="Do not encrypt connection")
+    parser.add_argument(
+        "-i", "--insecure", action="store_true", help="Do not encrypt connection",
+    )
     parser.add_argument("method", help="The method to invoke on the remote machine.")
     parser.add_argument(
         "--arguments",
@@ -44,8 +46,10 @@ def init_argparse() -> argparse.ArgumentParser:
 async def invoke_method(
     host: str, username: str, password: str, secure: bool, method: str, args: List[Any]
 ) -> None:
-    print(f"Conencting to {host} to call {method}...")
-    machine = await Machine.create(host=host, username=username, password=password, secure=secure)
+    print(f"Connecting to {host} to call {method}...")
+    machine = await Machine.create(
+        host=host, username=username, password=password, secure=secure,
+    )
     result = await machine._client.invoke_method(method, args)
     pprint.pprint(result)
 
