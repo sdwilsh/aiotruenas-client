@@ -85,3 +85,8 @@ class VirturalMachine(object):
     def _state(self) -> dict:
         """The state of the virtural machine, according to the Machine."""
         return self._machine._state["vms"][self._id]
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id.__eq__(other.id)

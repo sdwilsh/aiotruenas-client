@@ -236,6 +236,19 @@ class TestVirturalMachine(IsolatedAsyncioTestCase):
 
         self.assertTrue(await vm.restart())
 
+    def test_eq_impl(self) -> None:
+        self._machine._state["vms"] = {
+            42: {
+                "description": "",
+                "id": 42,
+                "name": "somename",
+                "status": {"pid": 10, "state": "RUNNING"},
+            }
+        }
+        a = VirturalMachine(self._machine, 42)
+        b = VirturalMachine(self._machine, 42)
+        self.assertEqual(a, b)
+
 
 if __name__ == "__main__":
     unittest.main()
