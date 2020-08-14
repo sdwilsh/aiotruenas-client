@@ -90,3 +90,6 @@ class Disk(object):
         if not isinstance(other, self.__class__):
             return NotImplemented
         return self.serial.__eq__(other.serial)
+
+    def __hash__(self):
+        return self.serial.__hash__()
