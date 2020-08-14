@@ -19,10 +19,11 @@ T = TypeVar("T", bound="Machine")
 
 class Machine(object):
     _client: Optional[FreeNASWebSocketClientProtocol] = None
-    _state: Dict[str, Any] = {}
     _disks: List[Disk] = []
-    _vms: List[VirturalMachine] = []
     _info: Dict[str, Any] = {}
+    _state: Dict[str, Any] = {}
+    _pools: List[Pool] = []
+    _vms: List[VirturalMachine] = []
 
     @classmethod
     async def create(cls, host: str, password: str, username: str = "root") -> T:
@@ -46,15 +47,18 @@ class Machine(object):
         self._client = None
         self._state = {
             "disks": {},
+            "pools": {},
             "vms": {},
         }
         self._disks = []
-        self._vms = []
         self._info = {}
+        self._pools = []
+        self._vms = []
 
     async def refresh(self) -> None:
         self._state = {
             "disks": await self._fetch_disks(),
+            "pools": await self._fetch_pools(),
             "vms": await self._fetch_vms(),
         }
         self._update_properties_from_state()
@@ -87,6 +91,36 @@ class Machine(object):
 
         return disks
 
+    async def _fetch_pools(self) -> Dict[str, dict]:
+        assert self._client is not None
+        pools = await self._client.invoke_method(
+            "pool.query",
+            [
+                [],
+                {
+                    "select": [
+                        #"deduplication",
+                        #"encryption",
+                        #"encryption_options",
+                        "name",
+                        #"topology",
+                    ],
+                },
+            ],
+        )
+        pools = {pool["name"]: pool for pool in pools}
+        if len(pools) > 0:
+            pass
+            '''
+            temps = await self._client.invoke_method(
+                "disk.temperatures", [[disk for disk in disks],],
+            )
+            for name, temp in temps.items():
+                disks[name]["temperature"] = temp
+            '''
+
+        return pools
+
     async def _fetch_vms(self) -> Dict[str, dict]:
         assert self._client is not None
         vms = await self._client.invoke_method(
@@ -95,6 +129,8 @@ class Machine(object):
         return {vm["id"]: vm for vm in vms}
 
     def _update_properties_from_state(self) -> None:
+        # Fixme: Can we apply some magic here
+        # to avoid duplication of code?
         # Disks
         available_disks_by_name = {
             disk.name: disk for disk in self._disks if disk.available
@@ -104,6 +140,15 @@ class Machine(object):
         self._disks = [*available_disks_by_name.values()] + [
             Disk(machine=self, name=disk_name) for disk_name in disk_names_to_add
         ]
+
+        # Pools
+        #available_pools_by_name = {pool.name: pool for pool in self._pools if pool.available}
+        # Fixme: Why not a list of current_pool_ids?
+        #current_pool_names = {pool_name for pool_name in self._state["pools"]}
+        #pool_names_to_add = current_pool_names - set(available_pools_by_name)
+        #self._pools = [*available_pools_by_names.values()] + [
+        #    Pool(machine=self, name=pool_name) for pool_name in pool_names_to_add
+        #]
 
         # Virtural Machines
         available_vms_by_id = {vm.id: vm for vm in self._vms if vm.available}
@@ -121,6 +166,11 @@ class Machine(object):
     @property
     def info(self) -> Dict[str, Any]:
         return self._info
+
+    @property
+    def pools(self) -> List[Pool]:
+        """Returns a list of pools known to the host."""
+        return self._pools
 
     @property
     def vms(self) -> List[VirturalMachine]:
