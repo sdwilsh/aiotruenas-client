@@ -89,15 +89,17 @@ class Machine(object):
                 },
             ],
         )
-        disks = {disk["name"]: disk for disk in disks}
-        if len(disks) > 0:
+        disks_by_name = {disk["name"]: disk for disk in disks}
+        if len(disks_by_name) > 0:
             temps = await self._client.invoke_method(
-                "disk.temperatures", [[disk for disk in disks],],
+                "disk.temperatures", [[disk for disk in disks_by_name],],
             )
             for name, temp in temps.items():
-                disks[name]["temperature"] = temp
+                disks_by_name[name]["temperature"] = temp
 
-        return disks
+        # Disks should be keyed by serial for long-term storage (unique), but
+        # it is easier to work by name above.
+        return {disk["serial"]: disk for disk in disks_by_name.values()}
 
     async def _fetch_vms(self) -> Dict[str, dict]:
         assert self._client is not None
@@ -108,13 +110,14 @@ class Machine(object):
 
     def _update_properties_from_state(self) -> None:
         # Disks
-        available_disks_by_name = {
+        available_disks_by_serial = {
             disk.name: disk for disk in self._disks if disk.available
         }
-        current_disk_names = {disk_name for disk_name in self._state["disks"]}
-        disk_names_to_add = current_disk_names - set(available_disks_by_name)
-        self._disks = [*available_disks_by_name.values()] + [
-            Disk(machine=self, name=disk_name) for disk_name in disk_names_to_add
+        current_disk_serials = {disk_serial for disk_serial in self._state["disks"]}
+        disk_serials_to_add = current_disk_serials - set(available_disks_by_serial)
+        self._disks = [*available_disks_by_serial.values()] + [
+            Disk(machine=self, serial=disk_serial)
+            for disk_serial in disk_serials_to_add
         ]
 
         # Virtural Machines
