@@ -29,6 +29,7 @@ class TestMachineAuth(IsolatedAsyncioTestCase):
             self._server.host,
             username=self._server.username,
             password=self._server.password,
+            secure=False,
         )
         await machine.close()
 
@@ -38,6 +39,7 @@ class TestMachineAuth(IsolatedAsyncioTestCase):
                 self._server.host,
                 username="not a real user",
                 password=self._server.password,
+                secure=False,
             )
 
 
@@ -62,6 +64,7 @@ class TestMachineRefresh(IsolatedAsyncioTestCase):
             self._server.host,
             username=self._server.username,
             password=self._server.password,
+            secure=False,
         )
 
     async def asyncTearDown(self):
