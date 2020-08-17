@@ -20,15 +20,15 @@ class DiskType(Enum):
 
 
 class Disk(object):
-    def __init__(self, machine: TMachine, name: str) -> None:
+    def __init__(self, machine: TMachine, serial: str) -> None:
         self._machine = machine
-        self._name = name
+        self._serial = serial
         self._cached_state = self._state
 
     @property
     def available(self) -> bool:
         """If the disk exists on the server."""
-        return self._name in self._machine._state["disks"]
+        return self._serial in self._machine._state["disks"]
 
     @property
     def description(self) -> str:
@@ -49,15 +49,15 @@ class Disk(object):
     @property
     def name(self) -> str:
         """The name of the disk."""
-        return self._name
+        if self.available:
+            self._cached_state = self._state
+            return self._state["name"]
+        return self._cached_state["name"]
 
     @property
     def serial(self) -> str:
         """The serial of the disk."""
-        if self.available:
-            self._cached_state = self._state
-            return self._state["serial"]
-        return self._cached_state["serial"]
+        return self._serial
 
     @property
     def size(self) -> int:
@@ -84,7 +84,7 @@ class Disk(object):
     @property
     def _state(self) -> dict:
         """The state of the desk, according to the Machine."""
-        return self._machine._state["disks"][self._name]
+        return self._machine._state["disks"][self._serial]
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
