@@ -3,7 +3,7 @@ from typing import TypeVar
 
 TMachine = TypeVar("TMachine", bound="Machine")
 TPoolStatus = TypeVar("TType", bound="PoolStatus")
-TPoolScanState = TypeVar("TType", bound="PoolScanState")
+# TPoolScanState = TypeVar("TType", bound="PoolScanState")
 # TType = TypeVar("TType", bound="PoolEncryptionAlgorithm")
 
 
@@ -19,6 +19,7 @@ class PoolStatus(Enum):
         raise Exception(f"Unexpected pool status '{value}'")
 
 
+"""
 @unique
 class PoolScanState(Enum):
     FINISHED = "FINISHED"
@@ -29,7 +30,7 @@ class PoolScanState(Enum):
         if value == cls.FINISHED.value:
             return cls.FINISHED
         raise Exception(f"Unexpected pool scan state '{value}'")
-
+"""
 
 """
 @unique

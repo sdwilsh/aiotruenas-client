@@ -5,8 +5,7 @@ from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock
 from pyfreenas import Machine
 
-# from pyfreenas.disk import Disk, DiskType
-from pyfreenas.pool import Pool, PoolStatus, PoolScanState
+from pyfreenas.pool import Pool, PoolStatus
 from tests.fakes.fakeserver import (
     FreeNASServer,
     TDiskQueryResult,
