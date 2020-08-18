@@ -4,7 +4,7 @@ from typing import TypeVar
 TMachine = TypeVar("TMachine", bound="Machine")
 TPoolStatus = TypeVar("TType", bound="PoolStatus")
 # TPoolScanState = TypeVar("TType", bound="PoolScanState")
-# TType = TypeVar("TType", bound="PoolEncryptionAlgorithm")
+# TPoolEncryptionAlgorithm = TypeVar("TType", bound="PoolEncryptionAlgorithm")
 
 
 @unique
