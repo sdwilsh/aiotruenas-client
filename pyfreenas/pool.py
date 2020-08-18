@@ -90,10 +90,7 @@ class Pool(object):
     @property
     def id(self) -> int:
         """The id of the pool."""
-        if self.available:
-            self._cached_state = self._state
-            return self._state["id"]
-        return self._cached_state["id"]
+        return self._id
 
     @property
     def is_decrypted(self) -> bool:
@@ -113,7 +110,7 @@ class Pool(object):
 
     @property
     def scan(self) -> dict:
-        """The scan? of the pool."""
+        """The scan of the pool."""
         if self.available:
             self._cached_state = self._state
             return self._state["scan"]
@@ -121,7 +118,7 @@ class Pool(object):
 
     @property
     def status(self) -> PoolStatus:
-        """The type of the pool."""
+        """The status of the pool."""
         if self.available:
             self._cached_state = self._state
             return PoolStatus.fromValue(self._state["status"])
