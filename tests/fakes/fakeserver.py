@@ -140,8 +140,6 @@ class FreeNASServer(object):
 class CommonQueries:
     @classmethod
     def disk_query_result(cls, *args, **kwargs) -> TDiskQueryResult:
-        # r =  cls._load_data('./data/freenas/disk.query')
-        # return r
         return [
             {
                 "description": "Some Desc",
