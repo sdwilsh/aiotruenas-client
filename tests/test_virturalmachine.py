@@ -18,6 +18,9 @@ class TestVirturalMachine(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "disk.temperatures", lambda *args: {},
         )
+        self._server.register_method_handler(
+            "pool.query", lambda *args: [],
+        )
 
     async def asyncSetUp(self):
         self._machine = await Machine.create(

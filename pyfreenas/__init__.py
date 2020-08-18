@@ -2,6 +2,7 @@ import ssl
 import websockets
 
 from .disk import Disk
+from .pool import Pool
 from .virtualmachine import VirturalMachine
 from .websockets_custom import (
     FreeNASWebSocketClientProtocol,
@@ -148,10 +149,12 @@ class Machine(object):
         ]
 
         # Pools
-        available_pools_by_id = {pool.id: pool for pool in self._pools if pool.available}
+        available_pools_by_id = {
+            pool.id: pool for pool in self._pools if pool.available
+        }
         current_pool_ids = {pool_id for pool_id in self._state["pools"]}
         pool_ids_to_add = current_pool_ids - set(available_pools_by_id)
-        self._pools = [*available_pools_by_ids.values()] + [
+        self._pools = [*available_pools_by_id.values()] + [
             Pool(machine=self, id=pool_id) for pool_id in pool_ids_to_add
         ]
 

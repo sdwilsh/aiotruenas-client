@@ -21,7 +21,9 @@ TMethodHandler = Callable[[List[Any]], Any]
 
 TDiskQueryResult = List[Dict[str, Union[str, int]]]
 TDiskTemperaturesResult = Dict[str, int]
+TPoolQueryResult = List[Dict[str, Any]]
 TVmQueryResult = List[Dict[str, Any]]
+
 
 DEFAULT_SYSTEM_INFO = {
     "boottime": datetime.datetime(
@@ -138,6 +140,8 @@ class FreeNASServer(object):
 class CommonQueries:
     @classmethod
     def disk_query_result(cls, *args, **kwargs) -> TDiskQueryResult:
+        # r =  cls._load_data('./data/freenas/disk.query')
+        # return r
         return [
             {
                 "description": "Some Desc",
@@ -179,4 +183,35 @@ class CommonQueries:
                 "name": "vm02",
                 "status": {"pid": None, "state": "STOPPED"},
             },
+        ]
+
+    @classmethod
+    def pool_query_result(cls, *args, **kwargs) -> TPoolQueryResult:
+        return [
+            {
+                "encrypt": 0,
+                "encryptkey": "",
+                "guid": "16006326459371220184",
+                "id": 4,
+                "is_decrypted": True,
+                "name": "testpool",
+                "scan": {
+                    "bytes_issued": 90546145402880,
+                    "bytes_processed": 90902589915136,
+                    "bytes_to_process": 90546369048576,
+                    "end_time": datetime.datetime(
+                        2020, 8, 16, 5, 43, 3, tzinfo=datetime.timezone.utc
+                    ),
+                    "errors": 0,
+                    "function": "SCRUB",
+                    "pause": None,
+                    "percentage": 99.60788488388062,
+                    "start_time": datetime.datetime(
+                        2020, 8, 14, 16, 0, 34, tzinfo=datetime.timezone.utc
+                    ),
+                    "state": "FINISHED",
+                },
+                "status": "ONLINE",
+                "topology": {},
+            }
         ]

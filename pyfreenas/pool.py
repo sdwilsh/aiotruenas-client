@@ -2,8 +2,10 @@ from enum import Enum, unique
 from typing import TypeVar
 
 TMachine = TypeVar("TMachine", bound="Machine")
-TStatus = TypeVar("TType", bound="PoolStatus")
-#TType = TypeVar("TType", bound="PoolEncryptionAlgorithm")
+TPoolStatus = TypeVar("TType", bound="PoolStatus")
+TPoolScanState = TypeVar("TType", bound="PoolScanState")
+# TType = TypeVar("TType", bound="PoolEncryptionAlgorithm")
+
 
 @unique
 class PoolStatus(Enum):
@@ -11,12 +13,25 @@ class PoolStatus(Enum):
     # FIXME: What are the other statuses?
 
     @classmethod
-    def fromValue(cls, value: str) -> TStatus:
+    def fromValue(cls, value: str) -> TPoolStatus:
         if value == cls.ONLINE.value:
             return cls.ONLINE
-        raise Exception(f"Unexpected pool encryption algorithm '{value}'")
+        raise Exception(f"Unexpected pool status '{value}'")
 
-'''
+
+@unique
+class PoolScanState(Enum):
+    FINISHED = "FINISHED"
+    # FIXME: What are the other states?
+
+    @classmethod
+    def fromValue(cls, value: str) -> TPoolScanState:
+        if value == cls.FINISHED.value:
+            return cls.FINISHED
+        raise Exception(f"Unexpected pool scan state '{value}'")
+
+
+"""
 @unique
 class PoolEncryptionAlgorithm(Enum):
     AES_128_CCM = "AES-128-CCM"
@@ -41,7 +56,7 @@ class PoolEncryptionAlgorithm(Enum):
         if value == cls.AES_256_CGM.value:
             return cls.AES_256_CGM
         raise Exception(f"Unexpected pool encryption algorithm '{value}'")
-'''
+"""
 
 
 class Pool(object):
@@ -104,10 +119,12 @@ class Pool(object):
         return self._cached_state["scan"]
 
     @property
-    def status(self) -> TStatus:
-        """The status of the pool."""
-        assert self.available:
-        return PoolStatus.fromValue(self._state["status"])
+    def status(self) -> PoolStatus:
+        """The type of the pool."""
+        if self.available:
+            self._cached_state = self._state
+            return PoolStatus.fromValue(self._state["status"])
+        return PoolStatus.fromValue(self._cached_state["status"])
 
     @property
     def topology(self) -> dict:
@@ -121,4 +138,11 @@ class Pool(object):
     def _state(self) -> dict:
         """The state of the pool, according to the Machine."""
         return self._machine._state["pools"][self._id]
-    '''
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        return self.id.__eq__(other.id)
+
+    def __hash__(self):
+        return self.id.__hash__()
