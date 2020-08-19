@@ -3,9 +3,10 @@ import unittest
 
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock
-from pyfreenas import Machine
+from pyfreenas.websockets import CachingMachine
 
-from pyfreenas.pool import Pool, PoolStatus
+from pyfreenas.pool import PoolStatus
+from pyfreenas.websockets.pool import CachingPool
 from tests.fakes.fakeserver import (
     FreeNASServer,
     TDiskQueryResult,
@@ -23,19 +24,13 @@ from typing import (
 
 class TestPool(IsolatedAsyncioTestCase):
     _server: FreeNASServer
-    _machine: Machine
+    _machine: CachingMachine
 
     def setUp(self):
         self._server = FreeNASServer()
-        self._server.register_method_handler(
-            "disk.query", lambda *args: [],
-        )
-        self._server.register_method_handler(
-            "vm.query", lambda *args: [],
-        )
 
     async def asyncSetUp(self):
-        self._machine = await Machine.create(
+        self._machine = await CachingMachine.create(
             self._server.host,
             username=self._server.username,
             password=self._server.password,
@@ -69,7 +64,7 @@ class TestPool(IsolatedAsyncioTestCase):
             ],
         )
 
-        await self._machine.refresh()
+        await self._machine.get_pools()
 
         self.assertEqual(len(self._machine.pools), 1)
         pool = self._machine.pools[0]
@@ -104,7 +99,7 @@ class TestPool(IsolatedAsyncioTestCase):
             ],
         )
 
-        await self._machine.refresh()
+        await self._machine.get_pools()
 
         pool = self._machine.pools[0]
         self.assertTrue(pool.available)
@@ -112,9 +107,9 @@ class TestPool(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "pool.query", lambda *args: [], override=True,
         )
-        await self._machine.refresh()
+        await self._machine.get_pools()
         self.assertFalse(pool.available)
-        self.assertEqual(len(self._machine._disks), 0)
+        self.assertEqual(len(self._machine.pools), 0)
 
     async def test_unavailable_caching(self) -> None:
         """Certain properites have caching even if no longer available"""
@@ -138,13 +133,13 @@ class TestPool(IsolatedAsyncioTestCase):
                 },
             ],
         )
-        await self._machine.refresh()
+        await self._machine.get_pools()
         pool = self._machine.pools[0]
         assert pool is not None
         self._server.register_method_handler(
             "pool.query", lambda *args: [], override=True,
         )
-        await self._machine.refresh()
+        await self._machine.get_pools()
 
         self.assertEqual(pool.encrypt, ENCRYPT)
         self.assertEqual(pool.guid, GUID)
@@ -153,20 +148,20 @@ class TestPool(IsolatedAsyncioTestCase):
         self.assertEqual(pool.name, NAME)
         self.assertEqual(pool.status, PoolStatus.ONLINE)
 
-    async def test_same_instance_after_refresh(self) -> None:
+    async def test_same_instance_after_get_pools(self) -> None:
         self._server.register_method_handler(
             "pool.query", lambda *args: [{"guid": 500, "name": "test_pool",},],
         )
-        await self._machine.refresh()
+        await self._machine.get_pools()
         original_pool = self._machine.pools[0]
-        await self._machine.refresh()
+        await self._machine.get_pools()
         new_pool = self._machine.pools[0]
         self.assertIs(original_pool, new_pool)
 
     def test_eq_impl(self) -> None:
-        self._machine._state["pools"] = {200: {"guid": 200, "name": "test_pool",}}
-        a = Pool(self._machine, 200)
-        b = Pool(self._machine, 200)
+        self._machine._pool_fetcher._state = {200: {"guid": 200, "name": "test_pool",}}
+        a = CachingPool(self._machine._pool_fetcher, 200)
+        b = CachingPool(self._machine._pool_fetcher, 200)
         self.assertEqual(a, b)
 
 

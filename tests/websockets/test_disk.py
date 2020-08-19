@@ -2,8 +2,9 @@ import unittest
 
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock
-from pyfreenas import Machine
-from pyfreenas.disk import Disk, DiskType
+from pyfreenas.disk import DiskType
+from pyfreenas.websockets.disk import CachingDisk
+from pyfreenas.websockets.machine import CachingMachine
 from tests.fakes.fakeserver import (
     FreeNASServer,
     TDiskQueryResult,
@@ -20,19 +21,13 @@ from typing import (
 
 class TestDisk(IsolatedAsyncioTestCase):
     _server: FreeNASServer
-    _machine: Machine
+    _machine: CachingMachine
 
     def setUp(self):
         self._server = FreeNASServer()
-        self._server.register_method_handler(
-            "pool.query", lambda *args: [],
-        )
-        self._server.register_method_handler(
-            "vm.query", lambda *args: [],
-        )
 
     async def asyncSetUp(self):
-        self._machine = await Machine.create(
+        self._machine = await CachingMachine.create(
             self._server.host,
             username=self._server.username,
             password=self._server.password,
@@ -67,7 +62,7 @@ class TestDisk(IsolatedAsyncioTestCase):
             "disk.temperatures", lambda *args: {NAME: TEMPERATURE},
         )
 
-        await self._machine.refresh()
+        await self._machine.get_disks()
 
         self.assertEqual(len(self._machine.disks), 1)
         disk = self._machine.disks[0]
@@ -105,7 +100,7 @@ class TestDisk(IsolatedAsyncioTestCase):
             "disk.temperatures", lambda *args: {NAME: TEMPERATURE},
         )
 
-        await self._machine.refresh()
+        await self._machine.get_disks()
 
         self.assertEqual(len(self._machine.disks), 1)
         disk = self._machine.disks[0]
@@ -137,7 +132,7 @@ class TestDisk(IsolatedAsyncioTestCase):
             "disk.temperatures", lambda *args: {"ada0": 42},
         )
 
-        await self._machine.refresh()
+        await self._machine.get_disks()
 
         disk = self._machine.disks[0]
         self.assertTrue(disk.available)
@@ -145,9 +140,9 @@ class TestDisk(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "disk.query", lambda *args: [], override=True,
         )
-        await self._machine.refresh()
+        await self._machine.get_disks()
         self.assertFalse(disk.available)
-        self.assertEqual(len(self._machine._disks), 0)
+        self.assertEqual(len(self._machine._disk_fetcher._cached_disks), 0)
 
     async def test_unavailable_caching(self) -> None:
         """Certain properites have caching even if no longer available"""
@@ -172,13 +167,13 @@ class TestDisk(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "disk.temperatures", lambda *args: {NAME: 42},
         )
-        await self._machine.refresh()
+        await self._machine.get_disks()
         disk = self._machine.disks[0]
         assert disk is not None
         self._server.register_method_handler(
             "disk.query", lambda *args: [], override=True,
         )
-        await self._machine.refresh()
+        await self._machine.get_disks()
 
         self.assertEqual(disk.model, MODEL)
         self.assertEqual(disk.name, NAME)
@@ -188,7 +183,7 @@ class TestDisk(IsolatedAsyncioTestCase):
             disk.temperature
         self.assertEqual(disk.type, DiskType.HDD)
 
-    async def test_same_instance_after_refresh(self) -> None:
+    async def test_same_instance_after_get_disks(self) -> None:
         self._server.register_method_handler(
             "disk.query",
             lambda *args: [
@@ -205,14 +200,14 @@ class TestDisk(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "disk.temperatures", lambda *args: {"ada0": 42},
         )
-        await self._machine.refresh()
+        await self._machine.get_disks()
         original_disk = self._machine.disks[0]
-        await self._machine.refresh()
+        await self._machine.get_disks()
         new_disk = self._machine.disks[0]
         self.assertIs(original_disk, new_disk)
 
     def test_eq_impl(self) -> None:
-        self._machine._state["disks"] = {
+        self._machine._disk_fetcher._state = {
             "ada0": {
                 "description": "",
                 "model": "",
@@ -223,8 +218,8 @@ class TestDisk(IsolatedAsyncioTestCase):
                 "type": "SSD",
             }
         }
-        a = Disk(self._machine, "ada0")
-        b = Disk(self._machine, "ada0")
+        a = CachingDisk(self._machine._disk_fetcher, "ada0")
+        b = CachingDisk(self._machine._disk_fetcher, "ada0")
         self.assertEqual(a, b)
 
 
