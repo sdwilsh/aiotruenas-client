@@ -14,25 +14,31 @@ pip install pyfreenas
 ## Usage
 
 ```python
-from pyfreenas import Machine as FreeNASMachine
+from pyfreenas import CachingMachine as FreeNASMachine
 
-machine = await Machine.create(
+machine = await FreeNASMachine.create(
     "hostname.of.machine",
     username="someuser",
     password="password",
 )
-await machine.refresh()
+disks = await machine.get_disks()
+pools = await machine.get_pools()
+vms = await machine.get_vms()
 ```
 
 ### `Machine`
 
 Object representing a FreeNAS instance.
 
-### `Disk`s
+### `Disk`
 
 Available from `machine.disks`, contains information about the disks attached to the machine.
 
-### `VirturalMachine`s
+### `Pool`
+
+Available from `machine.pools`, contains information about the ZFS pools known to the machine.
+
+### `VirturalMachine`
 
 Available from `machine.vms`, contains information about the virtural machines available on the machine.
 
