@@ -3,8 +3,6 @@ from typing import TypeVar
 
 TMachine = TypeVar("TMachine", bound="Machine")
 TPoolStatus = TypeVar("TType", bound="PoolStatus")
-# TPoolScanState = TypeVar("TType", bound="PoolScanState")
-# TPoolEncryptionAlgorithm = TypeVar("TType", bound="PoolEncryptionAlgorithm")
 
 
 @unique
@@ -17,47 +15,6 @@ class PoolStatus(Enum):
         if value == cls.ONLINE.value:
             return cls.ONLINE
         raise Exception(f"Unexpected pool status '{value}'")
-
-
-"""
-@unique
-class PoolScanState(Enum):
-    FINISHED = "FINISHED"
-    # FIXME: What are the other states?
-
-    @classmethod
-    def fromValue(cls, value: str) -> TPoolScanState:
-        if value == cls.FINISHED.value:
-            return cls.FINISHED
-        raise Exception(f"Unexpected pool scan state '{value}'")
-"""
-
-"""
-@unique
-class PoolEncryptionAlgorithm(Enum):
-    AES_128_CCM = "AES-128-CCM"
-    AES_192_CCM = "AES-192-CCM"
-    AES_256_CCM = "AES-256-CCM"
-    AES_128_CGM = "AES-128-CGM"
-    AES_192_CGM = "AES-192-CGM"
-    AES_256_CGM = "AES-256-CGM"
-
-    @classmethod
-    def fromValue(cls, value: str) -> TType:
-        if value == cls.AES_128_CCM.value:
-            return cls.AES_128_CCM
-        if value == cls.AES_192_CCM.value:
-            return cls.AES_192_CCM
-        if value == cls.AES_256_CCM.value:
-            return cls.AES_256_CCM
-        if value == cls.AES_128_CGM.value:
-            return cls.AES_128_CGM
-        if value == cls.AES_192_CGM.value:
-            return cls.AES_192_CGM
-        if value == cls.AES_256_CGM.value:
-            return cls.AES_256_CGM
-        raise Exception(f"Unexpected pool encryption algorithm '{value}'")
-"""
 
 
 class Pool(object):
