@@ -71,7 +71,7 @@ class Pool(object):
 
     @property
     def is_decrypted(self) -> bool:
-        """Is the pool decrypted."""
+        """Is the pool decrypted?"""
         if self.available:
             self._cached_state = self._state
             return self._state["is_decrypted"]
