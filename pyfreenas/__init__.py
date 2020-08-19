@@ -1,10 +1,9 @@
 import ssl
 import websockets
 
-from .disk import Disk
 from .pool import Pool
 from .virtualmachine import VirtualMachine
-from .websockets_custom import (
+from .websockets.protocol import (
     FreeNASWebSocketClientProtocol,
     freenas_auth_protocol_factory,
 )
@@ -21,7 +20,6 @@ T = TypeVar("T", bound="Machine")
 
 class Machine(object):
     _client: Optional[FreeNASWebSocketClientProtocol] = None
-    _disks: List[Disk] = []
     _info: Dict[str, Any] = {}
     _state: Dict[str, Any] = {}
     _pools: List[Pool] = []
@@ -59,7 +57,6 @@ class Machine(object):
         await self._client.close()
         self._client = None
         self._state = {
-            "disks": {},
             "pools": {},
             "vms": {},
         }
@@ -70,41 +67,10 @@ class Machine(object):
 
     async def refresh(self) -> None:
         self._state = {
-            "disks": await self._fetch_disks(),
             "pools": await self._fetch_pools(),
             "vms": await self._fetch_vms(),
         }
         self._update_properties_from_state()
-
-    async def _fetch_disks(self) -> Dict[str, dict]:
-        assert self._client is not None
-        disks = await self._client.invoke_method(
-            "disk.query",
-            [
-                [],
-                {
-                    "select": [
-                        "description",
-                        "model",
-                        "name",
-                        "serial",
-                        "size",
-                        "type",
-                    ],
-                },
-            ],
-        )
-        disks_by_name = {disk["name"]: disk for disk in disks}
-        if len(disks_by_name) > 0:
-            temps = await self._client.invoke_method(
-                "disk.temperatures", [[disk for disk in disks_by_name],],
-            )
-            for name, temp in temps.items():
-                disks_by_name[name]["temperature"] = temp
-
-        # Disks should be keyed by serial for long-term storage (unique), but
-        # it is easier to work by name above.
-        return {disk["serial"]: disk for disk in disks_by_name.values()}
 
     async def _fetch_pools(self) -> Dict[str, dict]:
         assert self._client is not None
@@ -136,17 +102,6 @@ class Machine(object):
         return {vm["id"]: vm for vm in vms}
 
     def _update_properties_from_state(self) -> None:
-        # Disks
-        available_disks_by_serial = {
-            disk.name: disk for disk in self._disks if disk.available
-        }
-        current_disk_serials = {disk_serial for disk_serial in self._state["disks"]}
-        disk_serials_to_add = current_disk_serials - set(available_disks_by_serial)
-        self._disks = [*available_disks_by_serial.values()] + [
-            Disk(machine=self, serial=disk_serial)
-            for disk_serial in disk_serials_to_add
-        ]
-
         # Pools
         available_pools_by_guid = {
             pool.guid: pool for pool in self._pools if pool.available
@@ -164,11 +119,6 @@ class Machine(object):
         self._vms = [*available_vms_by_id.values()] + [
             VirtualMachine(machine=self, id=vm_id) for vm_id in vm_ids_to_add
         ]
-
-    @property
-    def disks(self) -> List[Disk]:
-        """Returns a list of disks attached to the host."""
-        return self._disks
 
     @property
     def info(self) -> Dict[str, Any]:
