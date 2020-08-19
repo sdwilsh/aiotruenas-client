@@ -155,7 +155,7 @@ class TestPool(IsolatedAsyncioTestCase):
 
     async def test_same_instance_after_refresh(self) -> None:
         self._server.register_method_handler(
-            "pool.query", lambda *args: [{"id": 500, "name": "test_pool",},],
+            "pool.query", lambda *args: [{"guid": 500, "name": "test_pool",},],
         )
         await self._machine.refresh()
         original_pool = self._machine.pools[0]
@@ -164,7 +164,7 @@ class TestPool(IsolatedAsyncioTestCase):
         self.assertIs(original_pool, new_pool)
 
     def test_eq_impl(self) -> None:
-        self._machine._state["pools"] = {200: {"id": 200, "name": "test_pool",}}
+        self._machine._state["pools"] = {200: {"guid": 200, "name": "test_pool",}}
         a = Pool(self._machine, 200)
         b = Pool(self._machine, 200)
         self.assertEqual(a, b)

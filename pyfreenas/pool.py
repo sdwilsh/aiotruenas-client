@@ -23,15 +23,15 @@ class PoolStatus(Enum):
 
 
 class Pool(object):
-    def __init__(self, machine: TMachine, id: int) -> None:
+    def __init__(self, machine: TMachine, guid: str) -> None:
         self._machine = machine
-        self._id = id
+        self._guid = guid
         self._cached_state = self._state
 
     @property
     def available(self) -> bool:
         """If the pool exists on the Machine."""
-        return self._id in self._machine._state["pools"]
+        return self._guid in self._machine._state["pools"]
 
     @property
     def encrypt(self) -> int:
@@ -44,15 +44,15 @@ class Pool(object):
     @property
     def guid(self) -> str:
         """The guid of the pool."""
-        if self.available:
-            self._cached_state = self._state
-            return self._state["guid"]
-        return self._cached_state["guid"]
+        return self._guid
 
     @property
     def id(self) -> int:
         """The id of the pool."""
-        return self._id
+        if self.available:
+            self._cached_state = self._state
+            return self._state["id"]
+        return self._cached_state["id"]
 
     @property
     def is_decrypted(self) -> bool:
@@ -89,12 +89,12 @@ class Pool(object):
     @property
     def _state(self) -> dict:
         """The state of the pool, according to the Machine."""
-        return self._machine._state["pools"][self._id]
+        return self._machine._state["pools"][self._guid]
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
             return NotImplemented
-        return self.id.__eq__(other.id)
+        return self.guid.__eq__(other.guid)
 
     def __hash__(self):
-        return self.id.__hash__()
+        return self.guid.__hash__()

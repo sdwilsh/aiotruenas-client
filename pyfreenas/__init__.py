@@ -126,7 +126,7 @@ class Machine(object):
                 },
             ],
         )
-        return {pool["id"]: pool for pool in pools}
+        return {pool["guid"]: pool for pool in pools}
 
     async def _fetch_vms(self) -> Dict[str, dict]:
         assert self._client is not None
@@ -148,13 +148,13 @@ class Machine(object):
         ]
 
         # Pools
-        available_pools_by_id = {
-            pool.id: pool for pool in self._pools if pool.available
+        available_pools_by_guid = {
+            pool.guid: pool for pool in self._pools if pool.available
         }
-        current_pool_ids = {pool_id for pool_id in self._state["pools"]}
-        pool_ids_to_add = current_pool_ids - set(available_pools_by_id)
-        self._pools = [*available_pools_by_id.values()] + [
-            Pool(machine=self, id=pool_id) for pool_id in pool_ids_to_add
+        current_pool_guids = {pool_guid for pool_guid in self._state["pools"]}
+        pool_guids_to_add = current_pool_guids - set(available_pools_by_guid)
+        self._pools = [*available_pools_by_guid.values()] + [
+            Pool(machine=self, guid=pool_guid) for pool_guid in pool_guids_to_add
         ]
 
         # Virtural Machines
