@@ -3,7 +3,7 @@ import websockets
 
 from .disk import Disk
 from .pool import Pool
-from .virtualmachine import VirturalMachine
+from .virtualmachine import VirtualMachine
 from .websockets_custom import (
     FreeNASWebSocketClientProtocol,
     freenas_auth_protocol_factory,
@@ -25,7 +25,7 @@ class Machine(object):
     _info: Dict[str, Any] = {}
     _state: Dict[str, Any] = {}
     _pools: List[Pool] = []
-    _vms: List[VirturalMachine] = []
+    _vms: List[VirtualMachine] = []
 
     @classmethod
     async def create(
@@ -162,7 +162,7 @@ class Machine(object):
         current_vm_ids = {vm_id for vm_id in self._state["vms"]}
         vm_ids_to_add = current_vm_ids - set(available_vms_by_id)
         self._vms = [*available_vms_by_id.values()] + [
-            VirturalMachine(machine=self, id=vm_id) for vm_id in vm_ids_to_add
+            VirtualMachine(machine=self, id=vm_id) for vm_id in vm_ids_to_add
         ]
 
     @property
@@ -180,6 +180,6 @@ class Machine(object):
         return self._pools
 
     @property
-    def vms(self) -> List[VirturalMachine]:
+    def vms(self) -> List[VirtualMachine]:
         """Returns a list of virtual machines on the host."""
         return self._vms
