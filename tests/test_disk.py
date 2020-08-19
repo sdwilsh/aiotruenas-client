@@ -25,6 +25,9 @@ class TestDisk(IsolatedAsyncioTestCase):
     def setUp(self):
         self._server = FreeNASServer()
         self._server.register_method_handler(
+            "pool.query", lambda *args: [],
+        )
+        self._server.register_method_handler(
             "vm.query", lambda *args: [],
         )
 

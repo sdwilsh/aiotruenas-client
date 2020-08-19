@@ -2,6 +2,7 @@ import ssl
 import websockets
 
 from .disk import Disk
+from .pool import Pool
 from .virtualmachine import VirturalMachine
 from .websockets_custom import (
     FreeNASWebSocketClientProtocol,
@@ -20,10 +21,11 @@ T = TypeVar("T", bound="Machine")
 
 class Machine(object):
     _client: Optional[FreeNASWebSocketClientProtocol] = None
-    _state: Dict[str, Any] = {}
     _disks: List[Disk] = []
-    _vms: List[VirturalMachine] = []
     _info: Dict[str, Any] = {}
+    _state: Dict[str, Any] = {}
+    _pools: List[Pool] = []
+    _vms: List[VirturalMachine] = []
 
     @classmethod
     async def create(
@@ -58,15 +60,18 @@ class Machine(object):
         self._client = None
         self._state = {
             "disks": {},
+            "pools": {},
             "vms": {},
         }
         self._disks = []
-        self._vms = []
         self._info = {}
+        self._pools = []
+        self._vms = []
 
     async def refresh(self) -> None:
         self._state = {
             "disks": await self._fetch_disks(),
+            "pools": await self._fetch_pools(),
             "vms": await self._fetch_vms(),
         }
         self._update_properties_from_state()
@@ -101,6 +106,28 @@ class Machine(object):
         # it is easier to work by name above.
         return {disk["serial"]: disk for disk in disks_by_name.values()}
 
+    async def _fetch_pools(self) -> Dict[str, dict]:
+        assert self._client is not None
+        pools = await self._client.invoke_method(
+            "pool.query",
+            [
+                [],
+                {
+                    "select": [
+                        "encrypt",
+                        "encryptkey",
+                        "guid",
+                        "id",
+                        "is_decrypted",
+                        "name",
+                        "status",
+                        "topology",
+                    ],
+                },
+            ],
+        )
+        return {pool["guid"]: pool for pool in pools}
+
     async def _fetch_vms(self) -> Dict[str, dict]:
         assert self._client is not None
         vms = await self._client.invoke_method(
@@ -120,6 +147,16 @@ class Machine(object):
             for disk_serial in disk_serials_to_add
         ]
 
+        # Pools
+        available_pools_by_guid = {
+            pool.guid: pool for pool in self._pools if pool.available
+        }
+        current_pool_guids = {pool_guid for pool_guid in self._state["pools"]}
+        pool_guids_to_add = current_pool_guids - set(available_pools_by_guid)
+        self._pools = [*available_pools_by_guid.values()] + [
+            Pool(machine=self, guid=pool_guid) for pool_guid in pool_guids_to_add
+        ]
+
         # Virtural Machines
         available_vms_by_id = {vm.id: vm for vm in self._vms if vm.available}
         current_vm_ids = {vm_id for vm_id in self._state["vms"]}
@@ -136,6 +173,11 @@ class Machine(object):
     @property
     def info(self) -> Dict[str, Any]:
         return self._info
+
+    @property
+    def pools(self) -> List[Pool]:
+        """Returns a list of pools known to the host."""
+        return self._pools
 
     @property
     def vms(self) -> List[VirturalMachine]:

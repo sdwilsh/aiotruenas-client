@@ -56,6 +56,9 @@ class TestMachineRefresh(IsolatedAsyncioTestCase):
             "disk.temperatures", CommonQueries.disk_temperatures_result,
         )
         self._server.register_method_handler(
+            "pool.query", CommonQueries.pool_query_result,
+        )
+        self._server.register_method_handler(
             "vm.query", CommonQueries.vm_query_result,
         )
 
@@ -82,6 +85,9 @@ class TestMachineRefresh(IsolatedAsyncioTestCase):
             )
         self.assertEqual(
             len(CommonQueries.vm_query_result()), len(self._machine.vms),
+        )
+        self.assertEqual(
+            len(CommonQueries.pool_query_result()), len(self._machine.pools),
         )
 
 
