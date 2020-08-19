@@ -8,12 +8,17 @@ TPoolStatus = TypeVar("TType", bound="PoolStatus")
 @unique
 class PoolStatus(Enum):
     ONLINE = "ONLINE"
-    # FIXME: What are the other statuses?
+    OFFLINE = "OFFLINE"
+    DEGRADED = "DEGRADED"
 
     @classmethod
     def fromValue(cls, value: str) -> TPoolStatus:
         if value == cls.ONLINE.value:
             return cls.ONLINE
+        if value == cls.OFFLINE.value:
+            return cls.OFFLINE
+        if value == cls.DEGRADED.value:
+            return cls.DEGRADED
         raise Exception(f"Unexpected pool status '{value}'")
 
 
