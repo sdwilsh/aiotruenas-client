@@ -120,7 +120,6 @@ class Machine(object):
                         "id",
                         "is_decrypted",
                         "name",
-                        "scan",
                         "status",
                         "topology",
                     ],

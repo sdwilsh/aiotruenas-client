@@ -62,22 +62,6 @@ class TestPool(IsolatedAsyncioTestCase):
                     "id": ID,
                     "is_decrypted": IS_DECRYPTED,
                     "name": NAME,
-                    "scan": {
-                        "bytes_issued": 90546145402880,
-                        "bytes_processed": 90902589915136,
-                        "bytes_to_process": 90546369048576,
-                        "end_time": datetime.datetime(
-                            2020, 8, 16, 5, 43, 3, tzinfo=datetime.timezone.utc
-                        ),
-                        "errors": 0,
-                        "function": "SCRUB",
-                        "pause": None,
-                        "percentage": 99.60788488388062,
-                        "start_time": datetime.datetime(
-                            2020, 8, 14, 16, 0, 34, tzinfo=datetime.timezone.utc
-                        ),
-                        "state": "FINISHED",
-                    },
                     "status": "ONLINE",
                     "state": "FINISHED",
                     "topology": {},
@@ -114,22 +98,6 @@ class TestPool(IsolatedAsyncioTestCase):
                     "id": ID,
                     "is_decrypted": IS_DECRYPTED,
                     "name": NAME,
-                    "scan": {
-                        "bytes_issued": 90546145402880,
-                        "bytes_processed": 90902589915136,
-                        "bytes_to_process": 90546369048576,
-                        "end_time": datetime.datetime(
-                            2020, 8, 16, 5, 43, 3, tzinfo=datetime.timezone.utc
-                        ),
-                        "errors": 0,
-                        "function": "SCRUB",
-                        "pause": None,
-                        "percentage": 99.60788488388062,
-                        "start_time": datetime.datetime(
-                            2020, 8, 14, 16, 0, 34, tzinfo=datetime.timezone.utc
-                        ),
-                        "state": "FINISHED",
-                    },
                     "status": "ONLINE",
                     "topology": {},
                 },
@@ -165,22 +133,6 @@ class TestPool(IsolatedAsyncioTestCase):
                     "id": ID,
                     "is_decrypted": IS_DECRYPTED,
                     "name": NAME,
-                    "scan": {
-                        "bytes_issued": 90546145402880,
-                        "bytes_processed": 90902589915136,
-                        "bytes_to_process": 90546369048576,
-                        "end_time": datetime.datetime(
-                            2020, 8, 16, 5, 43, 3, tzinfo=datetime.timezone.utc
-                        ),
-                        "errors": 0,
-                        "function": "SCRUB",
-                        "pause": None,
-                        "percentage": 99.60788488388062,
-                        "start_time": datetime.datetime(
-                            2020, 8, 14, 16, 0, 34, tzinfo=datetime.timezone.utc
-                        ),
-                        "state": "FINISHED",
-                    },
                     "status": "ONLINE",
                     "topology": {},
                 },

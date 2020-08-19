@@ -109,14 +109,6 @@ class Pool(object):
         return self._cached_state["name"]
 
     @property
-    def scan(self) -> dict:
-        """The scan of the pool."""
-        if self.available:
-            self._cached_state = self._state
-            return self._state["scan"]
-        return self._cached_state["scan"]
-
-    @property
     def status(self) -> PoolStatus:
         """The status of the pool."""
         if self.available:
