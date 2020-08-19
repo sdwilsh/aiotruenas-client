@@ -9,6 +9,7 @@ from typing import (
 )
 from ..machine import Machine
 from .disk import CachingDiskStateFetcher, CachingDisk
+from .virtualmachine import CachingVirtualMachineStateFetcher, CachingVirtualMachine
 from .protocol import (
     FreeNASWebSocketClientProtocol,
     freenas_auth_protocol_factory,
@@ -22,9 +23,11 @@ class CachingMachine(Machine):
 
     _client: Optional[FreeNASWebSocketClientProtocol] = None
     _disk_fetcher: CachingDiskStateFetcher
+    _vm_fetcher: CachingVirtualMachineStateFetcher
 
     def __init__(self) -> None:
         self._disk_fetcher = CachingDiskStateFetcher(self)
+        self._vm_fetcher = CachingVirtualMachineStateFetcher(self)
         super().__init__()
 
     @classmethod
@@ -67,5 +70,11 @@ class CachingMachine(Machine):
         """Returns a list of cached disks attached to the host."""
         return self._disk_fetcher.disks
 
-    async def get_vms(self):
-        pass
+    async def get_vms(self) -> List[CachingVirtualMachine]:
+        """Returns a list of virtual machines on the host."""
+        return await self._vm_fetcher.get_vms()
+
+    @property
+    def vms(self) -> List[CachingVirtualMachine]:
+        """Returns a list of cached virtual machines on the host."""
+        return self._vm_fetcher.vms

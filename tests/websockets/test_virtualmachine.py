@@ -1,29 +1,21 @@
 import unittest
 
 from unittest import IsolatedAsyncioTestCase
-from pyfreenas import Machine
-from pyfreenas.virtualmachine import VirtualMachine, VirtualMachineState
+from pyfreenas.virtualmachine import VirtualMachineState
+from pyfreenas.websockets import CachingMachine
+from pyfreenas.websockets.virtualmachine import CachingVirtualMachine
 from tests.fakes.fakeserver import FreeNASServer
 
 
 class TestVirtualMachine(IsolatedAsyncioTestCase):
     _server: FreeNASServer
-    _machine: Machine
+    _machine: CachingMachine
 
     def setUp(self):
         self._server = FreeNASServer()
-        self._server.register_method_handler(
-            "disk.query", lambda *args: [],
-        )
-        self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {},
-        )
-        self._server.register_method_handler(
-            "pool.query", lambda *args: [],
-        )
 
     async def asyncSetUp(self):
-        self._machine = await Machine.create(
+        self._machine = await CachingMachine.create(
             self._server.host,
             username=self._server.username,
             password=self._server.password,
@@ -50,7 +42,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
             ],
         )
 
-        await self._machine.refresh()
+        await self._machine.get_vms()
 
         self.assertEqual(len(self._machine.vms), 1)
         vm = self._machine.vms[0]
@@ -75,7 +67,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
             ],
         )
 
-        await self._machine.refresh()
+        await self._machine.get_vms()
 
         self.assertEqual(len(self._machine.vms), 1)
         vm = self._machine.vms[0]
@@ -97,7 +89,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
             ],
         )
 
-        await self._machine.refresh()
+        await self._machine.get_vms()
 
         vm = self._machine.vms[0]
         self.assertTrue(vm.available)
@@ -105,7 +97,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "vm.query", lambda *args: [], override=True,
         )
-        await self._machine.refresh()
+        await self._machine.get_vms()
         self.assertFalse(vm.available)
         self.assertEqual(len(self._machine.vms), 0)
 
@@ -125,13 +117,13 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
                 },
             ],
         )
-        await self._machine.refresh()
+        await self._machine.get_vms()
         vm = self._machine.vms[0]
         assert vm is not None
         self._server.register_method_handler(
             "vm.query", lambda *args: [], override=True,
         )
-        await self._machine.refresh()
+        await self._machine.get_vms()
 
         self.assertEqual(vm.description, DESCRIPTION)
         self.assertEqual(vm.id, ID)
@@ -139,7 +131,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
         with self.assertRaises(AssertionError):
             vm.status
 
-    async def test_same_instance_after_refresh(self) -> None:
+    async def test_same_instance_after_get_vms(self) -> None:
         self._server.register_method_handler(
             "vm.query",
             lambda *args: [
@@ -151,9 +143,9 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
                 },
             ],
         )
-        await self._machine.refresh()
+        await self._machine.get_vms()
         original_vm = self._machine.vms[0]
-        await self._machine.refresh()
+        await self._machine.get_vms()
         new_vm = self._machine.vms[0]
         self.assertIs(original_vm, new_vm)
 
@@ -179,7 +171,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "vm.start", start_handler,
         )
-        await self._machine.refresh()
+        await self._machine.get_vms()
         vm = self._machine.vms[0]
         assert vm is not None
 
@@ -207,7 +199,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "vm.stop", stop_handler,
         )
-        await self._machine.refresh()
+        await self._machine.get_vms()
         vm = self._machine.vms[0]
         assert vm is not None
 
@@ -234,14 +226,14 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
         self._server.register_method_handler(
             "vm.restart", restart_handler,
         )
-        await self._machine.refresh()
+        await self._machine.get_vms()
         vm = self._machine.vms[0]
         assert vm is not None
 
         self.assertTrue(await vm.restart())
 
     def test_eq_impl(self) -> None:
-        self._machine._state["vms"] = {
+        self._machine._vm_fetcher._state = {
             42: {
                 "description": "",
                 "id": 42,
@@ -249,8 +241,8 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
                 "status": {"pid": 10, "state": "RUNNING"},
             }
         }
-        a = VirtualMachine(self._machine, 42)
-        b = VirtualMachine(self._machine, 42)
+        a = CachingVirtualMachine(self._machine._vm_fetcher, 42)
+        b = CachingVirtualMachine(self._machine._vm_fetcher, 42)
         self.assertEqual(a, b)
 
 

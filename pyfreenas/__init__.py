@@ -2,7 +2,6 @@ import ssl
 import websockets
 
 from .pool import Pool
-from .virtualmachine import VirtualMachine
 from .websockets.protocol import (
     FreeNASWebSocketClientProtocol,
     freenas_auth_protocol_factory,
@@ -23,7 +22,6 @@ class Machine(object):
     _info: Dict[str, Any] = {}
     _state: Dict[str, Any] = {}
     _pools: List[Pool] = []
-    _vms: List[VirtualMachine] = []
 
     @classmethod
     async def create(
@@ -58,7 +56,6 @@ class Machine(object):
         self._client = None
         self._state = {
             "pools": {},
-            "vms": {},
         }
         self._disks = []
         self._info = {}
@@ -68,7 +65,6 @@ class Machine(object):
     async def refresh(self) -> None:
         self._state = {
             "pools": await self._fetch_pools(),
-            "vms": await self._fetch_vms(),
         }
         self._update_properties_from_state()
 
@@ -94,13 +90,6 @@ class Machine(object):
         )
         return {pool["guid"]: pool for pool in pools}
 
-    async def _fetch_vms(self) -> Dict[str, dict]:
-        assert self._client is not None
-        vms = await self._client.invoke_method(
-            "vm.query", [[], {"select": ["id", "name", "description", "status",],},],
-        )
-        return {vm["id"]: vm for vm in vms}
-
     def _update_properties_from_state(self) -> None:
         # Pools
         available_pools_by_guid = {
@@ -112,14 +101,6 @@ class Machine(object):
             Pool(machine=self, guid=pool_guid) for pool_guid in pool_guids_to_add
         ]
 
-        # Virtural Machines
-        available_vms_by_id = {vm.id: vm for vm in self._vms if vm.available}
-        current_vm_ids = {vm_id for vm_id in self._state["vms"]}
-        vm_ids_to_add = current_vm_ids - set(available_vms_by_id)
-        self._vms = [*available_vms_by_id.values()] + [
-            VirtualMachine(machine=self, id=vm_id) for vm_id in vm_ids_to_add
-        ]
-
     @property
     def info(self) -> Dict[str, Any]:
         return self._info
@@ -129,7 +110,3 @@ class Machine(object):
         """Returns a list of pools known to the host."""
         return self._pools
 
-    @property
-    def vms(self) -> List[VirtualMachine]:
-        """Returns a list of virtual machines on the host."""
-        return self._vms
