@@ -5,7 +5,7 @@ import logging
 import pprint
 import yaml
 
-from pyfreenas import Machine
+from pyfreenas.websockets import CachingMachine as Machine
 from typing import (
     Any,
     List,
