@@ -38,15 +38,18 @@ class PoolStatus(Enum):
 
 
 class Pool(ABC):
+    def __init__(self, guid: str) -> None:
+        self._guid = guid
+
     @property
     @abstractmethod
     def encrypt(self) -> int:
         """The encrypt? of the pool."""
 
     @property
-    @abstractmethod
     def guid(self) -> str:
         """The guid of the pool."""
+        return self._guid
 
     @property
     @abstractmethod
