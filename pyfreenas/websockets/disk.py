@@ -15,8 +15,8 @@ TCachingDiskStateFetcher = TypeVar(
 
 class CachingDisk(Disk):
     def __init__(self, fetcher: TCachingDiskStateFetcher, serial: str) -> None:
+        super().__init__(serial=serial)
         self._fetcher = fetcher
-        self._serial = serial
         self._cached_state = self._state
 
     @property
@@ -47,11 +47,6 @@ class CachingDisk(Disk):
             self._cached_state = self._state
             return self._state["name"]
         return self._cached_state["name"]
-
-    @property
-    def serial(self) -> str:
-        """The serial of the disk."""
-        return self._serial
 
     @property
     def size(self) -> int:
