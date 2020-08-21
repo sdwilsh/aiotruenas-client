@@ -20,6 +20,9 @@ class VirtualMachineState(Enum):
 
 
 class VirtualMachine(ABC):
+    def __init__(self, id: int) -> None:
+        self._id = id
+
     @abstractmethod
     async def start(self, overcommit: bool = False) -> bool:
         """Starts a stopped virtual machine."""
@@ -38,9 +41,9 @@ class VirtualMachine(ABC):
         """The description of the virtual machine."""
 
     @property
-    @abstractmethod
     def id(self) -> int:
         """The id of the virtual machine."""
+        return self._id
 
     @property
     @abstractmethod

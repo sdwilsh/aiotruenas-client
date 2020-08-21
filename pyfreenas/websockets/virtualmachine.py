@@ -10,8 +10,8 @@ TCachingDiskStateFetcher = TypeVar("TCachingDiskStateFetcher", bound="CachingMac
 
 class CachingVirtualMachine(VirtualMachine):
     def __init__(self, fetcher: TCachingDiskStateFetcher, id: int) -> None:
+        super().__init__(id=id)
         self._fetcher = fetcher
-        self._id = id
         self._cached_state = self._state
 
     async def start(self, overcommit: bool = False) -> bool:
@@ -38,11 +38,6 @@ class CachingVirtualMachine(VirtualMachine):
             self._cached_state = self._state
             return self._state["description"]
         return self._cached_state["description"]
-
-    @property
-    def id(self) -> int:
-        """The id of the virtual machine."""
-        return self._id
 
     @property
     def name(self) -> str:

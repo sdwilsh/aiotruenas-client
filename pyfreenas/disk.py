@@ -20,6 +20,9 @@ class DiskType(Enum):
 
 
 class Disk(ABC):
+    def __init__(self, serial: str) -> None:
+        self._serial = serial
+
     @property
     @abstractmethod
     def description(self) -> str:
@@ -36,9 +39,9 @@ class Disk(ABC):
         """The name of the disk."""
 
     @property
-    @abstractmethod
     def serial(self) -> str:
         """The serial of the disk."""
+        return self._serial
 
     @property
     @abstractmethod

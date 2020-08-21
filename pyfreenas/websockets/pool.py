@@ -14,8 +14,8 @@ TCachingPoolStateFetcher = TypeVar(
 
 class CachingPool(Pool):
     def __init__(self, fetcher: TCachingPoolStateFetcher, guid: str) -> None:
+        super().__init__(guid)
         self._fetcher = fetcher
-        self._guid = guid
         self._cached_state = self._state
 
     @property
@@ -30,11 +30,6 @@ class CachingPool(Pool):
             self._cached_state = self._state
             return self._state["encrypt"]
         return self._cached_state["encrypt"]
-
-    @property
-    def guid(self) -> str:
-        """The guid of the pool."""
-        return self._guid
 
     @property
     def id(self) -> int:
