@@ -17,7 +17,7 @@ class Machine(ABC):
 
     @abstractmethod
     async def get_pools(self) -> List[Pool]:
-        """Get the poolss on the remote machine."""
+        """Get the pools on the remote machine."""
 
     @abstractmethod
     async def get_vms(self) -> List[VirtualMachine]:
