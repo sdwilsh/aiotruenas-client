@@ -1,10 +1,10 @@
-"""pyfreenas setup script."""
+"""aiotruenas-client setup script."""
 import setuptools
 
 version = "0.1.0"
 
 github_username = "sdwilsh"
-github_repository = "py-freenas"
+github_repository = "aiotruenas-client"
 
 github_path = f"{github_username}/{github_repository}"
 github_url = f"https://github.com/{github_path}"
@@ -16,11 +16,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="pyfreenas",
+    name="aiotruenas-client",
     version=version,
     author="Shawn Wilsher",
     author_email="me@shawnwilsher.com",
-    description="A Python module for the FreeNAS websocket API.",
+    description="A Python module for the TrueNAS websocket API.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url=github_url,

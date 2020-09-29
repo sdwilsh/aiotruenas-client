@@ -2,11 +2,11 @@ import unittest
 
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock
-from pyfreenas.disk import DiskType
-from pyfreenas.websockets.disk import CachingDisk
-from pyfreenas.websockets.machine import CachingMachine
+from aiotruenas_client.disk import DiskType
+from aiotruenas_client.websockets.disk import CachingDisk
+from aiotruenas_client.websockets.machine import CachingMachine
 from tests.fakes.fakeserver import (
-    FreeNASServer,
+    TrueNASServer,
     TDiskQueryResult,
     TDiskTemperaturesResult,
     TVmQueryResult,
@@ -20,11 +20,11 @@ from typing import (
 
 
 class TestDisk(IsolatedAsyncioTestCase):
-    _server: FreeNASServer
+    _server: TrueNASServer
     _machine: CachingMachine
 
     def setUp(self):
-        self._server = FreeNASServer()
+        self._server = TrueNASServer()
 
     async def asyncSetUp(self):
         self._machine = await CachingMachine.create(

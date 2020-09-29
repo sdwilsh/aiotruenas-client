@@ -14,8 +14,8 @@ class PoolStatus(Enum):
     ONLINE = "ONLINE"
     REMOVED = "REMOVED"
     UNAVAIL = "UNAVAIL"
-    # State unique to FreeNAS (AFAIK)
-    # Pool known by FreeNAS, but not by zfs (I think)
+    # State unique to TrueNAS (AFAIK)
+    # Pool known by TrueNAS, but not by zfs (I think)
     UNKNOWN = "UNKNOWN"
 
     @classmethod

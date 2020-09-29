@@ -8,7 +8,7 @@ from typing import Any, Callable, List
 from websockets.client import WebSocketClientProtocol
 
 
-class FreeNASWebSocketClientProtocol(WebSocketClientProtocol):
+class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
     def __init__(self, *args, username: str, password: str, **kwargs):
         super().__init__(*args, **kwargs)
         self._username = username
@@ -46,9 +46,9 @@ class FreeNASWebSocketClientProtocol(WebSocketClientProtocol):
             return recv["result"]
 
 
-def freenas_auth_protocol_factory(
+def truenas_auth_protocol_factory(
     username: str, password: str
-) -> Callable[[Any], FreeNASWebSocketClientProtocol]:
+) -> Callable[[Any], TrueNASWebSocketClientProtocol]:
     return functools.partial(
-        FreeNASWebSocketClientProtocol, username=username, password=password
+        TrueNASWebSocketClientProtocol, username=username, password=password
     )

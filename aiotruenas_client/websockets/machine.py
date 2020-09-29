@@ -12,8 +12,8 @@ from .disk import CachingDiskStateFetcher, CachingDisk
 from .pool import CachingPoolStateFetcher, CachingPool
 from .virtualmachine import CachingVirtualMachineStateFetcher, CachingVirtualMachine
 from .protocol import (
-    FreeNASWebSocketClientProtocol,
-    freenas_auth_protocol_factory,
+    TrueNASWebSocketClientProtocol,
+    truenas_auth_protocol_factory,
 )
 
 TCachingMachine = TypeVar("TCachingMachine", bound="CachingMachine")
@@ -22,7 +22,7 @@ TCachingMachine = TypeVar("TCachingMachine", bound="CachingMachine")
 class CachingMachine(Machine):
     """A Machine implementation that connects over websockets and keeps fetched information in-sync with the server."""
 
-    _client: Optional[FreeNASWebSocketClientProtocol] = None
+    _client: Optional[TrueNASWebSocketClientProtocol] = None
     _disk_fetcher: CachingDiskStateFetcher
     _pool_fetcher: CachingPoolStateFetcher
     _vm_fetcher: CachingVirtualMachineStateFetcher
@@ -54,7 +54,7 @@ class CachingMachine(Machine):
             context = ssl.SSLContext()
         self._client = await websockets.connect(
             f"{protocol}://{host}/websocket",
-            create_protocol=freenas_auth_protocol_factory(username, password),
+            create_protocol=truenas_auth_protocol_factory(username, password),
             ssl=context,
         )
 

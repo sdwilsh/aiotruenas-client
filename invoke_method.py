@@ -5,7 +5,7 @@ import logging
 import pprint
 import yaml
 
-from pyfreenas.websockets import CachingMachine as Machine
+from aiotruenas_client.websockets import CachingMachine as Machine
 from typing import (
     Any,
     List,
@@ -14,7 +14,7 @@ from typing import (
 
 def init_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Invoke methods on a remote FreeNAS machine.",
+        description="Invoke methods on a remote TrueNAS machine.",
     )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
@@ -28,7 +28,7 @@ def init_argparse() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--host",
-        help="The host or IP address of the FreeNAS machine.  Loads from .auth.yaml if not present.",
+        help="The host or IP address of the TrueNAS machine.  Loads from .auth.yaml if not present.",
     )
     parser.add_argument(
         "--password",
