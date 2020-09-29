@@ -12,7 +12,7 @@ class Machine(ABC):
         """Create and validate authentication with the concrete implementation of this class."""
 
     @abstractmethod
-    async def get_disks(self) -> List[Disk]:
+    async def get_disks(self, include_temperature: bool) -> List[Disk]:
         """Get the disks on the remote machine."""
 
     @abstractmethod

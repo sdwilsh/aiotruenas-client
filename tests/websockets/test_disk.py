@@ -44,7 +44,6 @@ class TestDisk(IsolatedAsyncioTestCase):
         NAME = "ada0"
         SERIAL = "NOTREALSERIAL"
         SIZE = 250059350016
-        TEMPERATURE = 22
         self._server.register_method_handler(
             "disk.query",
             lambda *args: [
@@ -58,9 +57,6 @@ class TestDisk(IsolatedAsyncioTestCase):
                 },
             ],
         )
-        self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {NAME: TEMPERATURE},
-        )
 
         await self._machine.get_disks()
 
@@ -73,7 +69,7 @@ class TestDisk(IsolatedAsyncioTestCase):
         self.assertEqual(disk.name, NAME)
         self.assertEqual(disk.serial, SERIAL)
         self.assertEqual(disk.size, SIZE)
-        self.assertEqual(disk.temperature, TEMPERATURE)
+        self.assertEqual(disk.temperature, None)
         self.assertEqual(disk.type, DiskType.SSD)
 
     async def test_hddd_data_interpretation(self) -> None:
@@ -82,7 +78,6 @@ class TestDisk(IsolatedAsyncioTestCase):
         NAME = "da0"
         SERIAL = "NOTREALSERIAL"
         SIZE = 6001175126016
-        TEMPERATURE = 24
         self._server.register_method_handler(
             "disk.query",
             lambda *args: [
@@ -96,9 +91,6 @@ class TestDisk(IsolatedAsyncioTestCase):
                 },
             ],
         )
-        self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {NAME: TEMPERATURE},
-        )
 
         await self._machine.get_disks()
 
@@ -111,8 +103,33 @@ class TestDisk(IsolatedAsyncioTestCase):
         self.assertEqual(disk.name, NAME)
         self.assertEqual(disk.serial, SERIAL)
         self.assertEqual(disk.size, SIZE)
-        self.assertEqual(disk.temperature, TEMPERATURE)
+        self.assertEqual(disk.temperature, None)
         self.assertEqual(disk.type, DiskType.HDD)
+
+    async def test_temperature(self) -> None:
+        TEMPERATURE = 42
+        self._server.register_method_handler(
+            "disk.query",
+            lambda *args: [
+                {
+                    "description": "Some Desc",
+                    "model": "Samsung SSD 860 EVO 250GB",
+                    "name": "ada0",
+                    "serial": "NOTREALSERIAL",
+                    "size": 250059350016,
+                    "type": "SSD",
+                },
+            ],
+        )
+        self._server.register_method_handler(
+            "disk.temperatures", lambda *args: {"ada0": TEMPERATURE},
+        )
+
+        await self._machine.get_disks(include_temperature=True)
+
+        self.assertEqual(len(self._machine.disks), 1)
+        disk = self._machine.disks[0]
+        self.assertEqual(disk.temperature, TEMPERATURE)
 
     async def test_availability(self) -> None:
         self._server.register_method_handler(

@@ -64,9 +64,11 @@ class CachingMachine(Machine):
         await self._client.close()
         self._client = None
 
-    async def get_disks(self) -> List[CachingDisk]:
+    async def get_disks(self, include_temperature: bool = False) -> List[CachingDisk]:
         """Returns a list of disks attached to the host."""
-        return await self._disk_fetcher.get_disks()
+        return await self._disk_fetcher.get_disks(
+            include_temperature=include_temperature,
+        )
 
     @property
     def disks(self) -> List[CachingDisk]:
