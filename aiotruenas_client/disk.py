@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 from enum import Enum, unique
-from typing import TypeVar
+from typing import TypeVar, Optional
 
 TType = TypeVar("TType", bound="DiskType")
 
@@ -50,7 +50,7 @@ class Disk(ABC):
 
     @property
     @abstractmethod
-    def temperature(self) -> int:
+    def temperature(self) -> Optional[int]:
         """The temperature of the disk."""
 
     @property

@@ -3,6 +3,7 @@ from typing import (
     Dict,
     List,
     TypeVar,
+    Optional,
 )
 from ..disk import Disk, DiskType
 
@@ -57,10 +58,12 @@ class CachingDisk(Disk):
         return self._cached_state["size"]
 
     @property
-    def temperature(self) -> int:
+    def temperature(self) -> Optional[int]:
         """The temperature of the disk."""
         assert self.available
-        return self._state["temperature"]
+        if "temperature" in self._state:
+            return self._state["temperature"]
+        return None
 
     @property
     def type(self) -> DiskType:
@@ -80,14 +83,16 @@ class CachingDiskStateFetcher(object):
     _parent: TCachingMachine
     _state: Dict[str, dict]
     _cached_disks: List[CachingDisk]
+    _fetch_temperature: bool
 
     def __init__(self, machine: TCachingMachine) -> None:
         self._parent = machine
         self._state = {}
         self._cached_disks = []
 
-    async def get_disks(self) -> List[CachingDisk]:
+    async def get_disks(self, include_temperature: bool = False) -> List[CachingDisk]:
         """Returns a list of disks attached to the host."""
+        self._fetch_temperature = include_temperature
         self._state = await self._fetch_disks()
         self._update_properties_from_state()
         return self.disks
@@ -119,7 +124,7 @@ class CachingDiskStateFetcher(object):
             ],
         )
         disks_by_name = {disk["name"]: disk for disk in disks}
-        if len(disks_by_name) > 0:
+        if len(disks_by_name) > 0 and self._fetch_temperature:
             temps = await self._parent._client.invoke_method(
                 "disk.temperatures", [[disk for disk in disks_by_name],],
             )
