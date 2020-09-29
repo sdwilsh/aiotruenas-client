@@ -1,18 +1,18 @@
 import unittest
 
 from unittest import IsolatedAsyncioTestCase
-from pyfreenas.virtualmachine import VirtualMachineState
-from pyfreenas.websockets import CachingMachine
-from pyfreenas.websockets.virtualmachine import CachingVirtualMachine
-from tests.fakes.fakeserver import FreeNASServer
+from aiotruenas_client.virtualmachine import VirtualMachineState
+from aiotruenas_client.websockets import CachingMachine
+from aiotruenas_client.websockets.virtualmachine import CachingVirtualMachine
+from tests.fakes.fakeserver import TrueNASServer
 
 
 class TestVirtualMachine(IsolatedAsyncioTestCase):
-    _server: FreeNASServer
+    _server: TrueNASServer
     _machine: CachingMachine
 
     def setUp(self):
-        self._server = FreeNASServer()
+        self._server = TrueNASServer()
 
     async def asyncSetUp(self):
         self._machine = await CachingMachine.create(

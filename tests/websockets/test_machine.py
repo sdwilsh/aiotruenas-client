@@ -2,18 +2,18 @@ import unittest
 import websockets
 
 from unittest import IsolatedAsyncioTestCase
-from pyfreenas.websockets import CachingMachine
+from aiotruenas_client.websockets import CachingMachine
 from tests.fakes.fakeserver import (
     CommonQueries,
-    FreeNASServer,
+    TrueNASServer,
 )
 
 
 class TestCachingMachineAuth(IsolatedAsyncioTestCase):
-    _server: FreeNASServer
+    _server: TrueNASServer
 
     def setUp(self):
-        self._server = FreeNASServer()
+        self._server = TrueNASServer()
 
     async def asyncTearDown(self):
         await self._server.stop()

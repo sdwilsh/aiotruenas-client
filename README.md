@@ -1,22 +1,22 @@
 ![Lint](https://github.com/sdwilsh/py-freenas/workflows/Lint/badge.svg)
 ![Build](https://github.com/sdwilsh/py-freenas/workflows/Build/badge.svg)
 
-# Python Module for FreeNAS Websocket API
+# Python Module for TrueNAS Websocket API
 
-This python module utilizes the [FreeNAS Websocket API](https://api.ixsystems.com/freenas/) to get state from a FreeNAS instance.
+This python module utilizes the [TrueNAS Websocket API](https://www.truenas.com/docs/hub/additional-topics/api/websocket_api.html) to get state from a TrueNAS instance.
 
 ## Installation
 
 ```
-pip install pyfreenas
+pip install aiotruenas-client
 ```
 
 ## Usage
 
 ```python
-from pyfreenas import CachingMachine as FreeNASMachine
+from aiotruenas_client import CachingMachine as TrueNASMachine
 
-machine = await FreeNASMachine.create(
+machine = await TrueNASMachine.create(
     "hostname.of.machine",
     username="someuser",
     password="password",
@@ -28,7 +28,7 @@ vms = await machine.get_vms()
 
 ### `Machine`
 
-Object representing a FreeNAS instance.
+Object representing a TrueNAS instance.
 
 ### `Disk`
 
@@ -43,9 +43,10 @@ Available from `machine.pools`, contains information about the ZFS pools known t
 Available from `machine.vms`, contains information about the virtural machines available on the machine.
 
 Each instance has the following methods availabe:
-* `vm.start`
-* `vm.stop`
-* `vm.restart`
+
+- `vm.start`
+- `vm.stop`
+- `vm.restart`
 
 ## Development
 
@@ -68,7 +69,7 @@ pre-commit install
 ### Working With Methods
 
 When adding support for a new object, or updating existing code, it can be useful to see the raw response from the
-FreeNAS machine from time to time.  In order to help do that easily, you can drop a `.auth.yaml` file in the root of
+TrueNAS machine from time to time. In order to help do that easily, you can drop a `.auth.yaml` file in the root of
 the repository, with the following content:
 
 ```

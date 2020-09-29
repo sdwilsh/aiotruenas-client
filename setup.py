@@ -16,7 +16,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="pyfreenas",
+    name="aiotruenas-client",
     version=version,
     author="Shawn Wilsher",
     author_email="me@shawnwilsher.com",

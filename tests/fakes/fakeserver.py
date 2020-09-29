@@ -15,7 +15,7 @@ from typing import (
     Union,
 )
 
-TServer = TypeVar("TServer", bound="FreeNASServer")
+TServer = TypeVar("TServer", bound="TrueNASServer")
 
 TMethodHandler = Callable[[List[Any]], Any]
 
@@ -51,7 +51,7 @@ DEFAULT_SYSTEM_INFO = {
 }
 
 
-class FreeNASServer(object):
+class TrueNASServer(object):
 
     _username: str
     _password: str

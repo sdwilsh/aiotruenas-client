@@ -3,12 +3,12 @@ import unittest
 
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock
-from pyfreenas.websockets import CachingMachine
+from aiotruenas_client.websockets import CachingMachine
 
-from pyfreenas.pool import PoolStatus
-from pyfreenas.websockets.pool import CachingPool
+from aiotruenas_client.pool import PoolStatus
+from aiotruenas_client.websockets.pool import CachingPool
 from tests.fakes.fakeserver import (
-    FreeNASServer,
+    TrueNASServer,
     TDiskQueryResult,
     TDiskTemperaturesResult,
     TPoolQueryResult,
@@ -23,11 +23,11 @@ from typing import (
 
 
 class TestPool(IsolatedAsyncioTestCase):
-    _server: FreeNASServer
+    _server: TrueNASServer
     _machine: CachingMachine
 
     def setUp(self):
-        self._server = FreeNASServer()
+        self._server = TrueNASServer()
 
     async def asyncSetUp(self):
         self._machine = await CachingMachine.create(
