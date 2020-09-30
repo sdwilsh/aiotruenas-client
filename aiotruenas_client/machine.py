@@ -1,5 +1,9 @@
 from abc import abstractmethod, ABC
-from typing import List
+from typing import (
+    Any,
+    Dict,
+    List,
+)
 from .disk import Disk
 from .pool import Pool
 from .virtualmachine import VirtualMachine
@@ -14,6 +18,10 @@ class Machine(ABC):
     @abstractmethod
     async def get_disks(self, include_temperature: bool) -> List[Disk]:
         """Get the disks on the remote machine."""
+
+    @abstractmethod
+    async def get_system_info(self) -> Dict[str, Any]:
+        """Get some basic information about the remote machine."""
 
     @abstractmethod
     async def get_pools(self) -> List[Pool]:

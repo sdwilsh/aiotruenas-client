@@ -75,6 +75,11 @@ class CachingMachine(Machine):
         """Returns a list of cached disks attached to the host."""
         return self._disk_fetcher.disks
 
+    async def get_system_info(self) -> Dict[str, Any]:
+        """Get some basic information about the remote machine."""
+        assert self._client is not None
+        return await self._client.invoke_method("system.info")
+
     async def get_pools(self) -> List[CachingPool]:
         """Returns a list of pools known to the host."""
         return await self._pool_fetcher.get_pools()
