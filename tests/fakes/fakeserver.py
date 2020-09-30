@@ -25,32 +25,6 @@ TPoolQueryResult = List[Dict[str, Any]]
 TVmQueryResult = List[Dict[str, Any]]
 
 
-DEFAULT_SYSTEM_INFO = {
-    "boottime": datetime.datetime(
-        2020, 4, 30, 16, 44, 16, tzinfo=datetime.timezone.utc
-    ),
-    "buildtime": [
-        datetime.datetime(2020, 4, 21, 16, 43, 21, tzinfo=datetime.timezone.utc)
-    ],
-    "cores": 12,
-    "datetime": datetime.datetime(
-        2020, 8, 8, 22, 8, 2, 489000, tzinfo=datetime.timezone.utc
-    ),
-    "hostname": "localhost",
-    "license": None,
-    "loadavg": [0.189453125, 0.18505859375, 0.16552734375],
-    "model": "AMD Ryzen 5 3600 6-Core Processor              ",
-    "physmem": 34240249856,
-    "system_manufacturer": "To Be Filled By O.E.M.",
-    "system_product": "To Be Filled By O.E.M.",
-    "system_serial": "To Be Filled By O.E.M.",
-    "timezone": "America/Los_Angeles",
-    "uptime": "3:08PM  up 99 days, 22:24, 8 users",
-    "uptime_seconds": 8634225.58104613,
-    "version": "FreeNAS-11.3-U2.1",
-}
-
-
 class TrueNASServer(object):
 
     _username: str
@@ -59,16 +33,13 @@ class TrueNASServer(object):
 
     _method_handlers: Dict[str, TMethodHandler]
 
-    def __init__(self, system_info: Dict[str, Any] = DEFAULT_SYSTEM_INFO):
+    def __init__(self):
         self._username = "".join(random.choice(string.ascii_letters) for i in range(6))
         self._password = "".join(random.choice(string.ascii_letters) for i in range(6))
         self._method_handlers = {}
 
         self.register_method_handler(
             "auth.login", lambda u, p: u == self.username and p == self.password,
-        )
-        self.register_method_handler(
-            "system.info", lambda: system_info,
         )
 
         self._serve_handle = websockets.serve(self._handle_messages, "localhost", 8000)
