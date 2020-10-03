@@ -78,10 +78,10 @@ username: "someuser"
 password: "somepassword"
 ```
 
-Then use `invoke_method.py` to call a method:
+Then use `scripts/invoke_method.py` to call a method:
 
 ```
-python invoke_method.py disk.query
+python scripts/invoke_method.py disk.query
 ```
 
 Run it with -h to see additional options.
