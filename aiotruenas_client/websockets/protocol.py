@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
+    # Keyed by the id of the invoke message.
     _invoke_method_futures: Dict[str, asyncio.Future] = {}
 
     def __init__(self, *args, username: str, password: str, **kwargs):
@@ -58,7 +59,8 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
 
     def _invoke_method_handler(self, message: Dict[str, Any]) -> None:
         if message["id"] not in self._invoke_method_futures:
-            logger.error(f"Message id %d is not one we are expecting!", message["id"])
+            logger.error(f"Message id %s is not one we are expecting!", message["id"])
+            return
         future = self._invoke_method_futures.pop(message["id"])
         future.set_result(message)
 
