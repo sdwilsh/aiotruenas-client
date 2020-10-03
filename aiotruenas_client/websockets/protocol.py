@@ -1,19 +1,29 @@
 import asyncio
 import ejson
 import functools
+import logging
+import pprint
 import uuid
 import websockets
 
-from typing import Any, Callable, List
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+)
 from websockets.client import WebSocketClientProtocol
+
+logger = logging.getLogger(__name__)
 
 
 class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
+    _invoke_method_futures: Dict[str, asyncio.Future] = {}
+
     def __init__(self, *args, username: str, password: str, **kwargs):
         super().__init__(*args, **kwargs)
         self._username = username
         self._password = password
-        self._method_lock = asyncio.Lock()
 
     async def handshake(self, *args, **kwargs):
         await WebSocketClientProtocol.handshake(self, *args, **kwargs)
@@ -25,6 +35,8 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
             await self.close()
             raise websockets.exceptions.NegotiationError("Unable to connect.")
 
+        asyncio.create_task(self._websocket_message_handler())
+
         result = await self.invoke_method(
             "auth.login", [self._username, self._password]
         )
@@ -33,17 +45,32 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
             raise websockets.exceptions.SecurityError("Unable to authenticate.")
 
     async def invoke_method(self, method: str, params: List[Any] = []) -> Any:
-        async with self._method_lock:
-            id = str(uuid.uuid4())
-            await super().send(
-                ejson.dumps(
-                    {"id": id, "msg": "method", "method": method, "params": params,}
-                )
+        id = str(uuid.uuid4())
+        recv_future = asyncio.get_event_loop().create_future()
+        self._invoke_method_futures[id] = recv_future
+        await super().send(
+            ejson.dumps(
+                {"id": id, "msg": "method", "method": method, "params": params,}
             )
-            recv = ejson.loads(await super().recv())
-            if recv["id"] != id or recv["msg"] != "result":
-                raise websockets.exceptions.ProtocolError("Unexpected message")
-            return recv["result"]
+        )
+        recv = await recv_future
+        return recv["result"]
+
+    def _invoke_method_handler(self, message: Dict[str, Any]) -> None:
+        if message["id"] not in self._invoke_method_futures:
+            logger.error(f"Message id %d is not one we are expecting!", message["id"])
+        future = self._invoke_method_futures.pop(message["id"])
+        future.set_result(message)
+
+    async def _websocket_message_handler(self) -> None:
+        async for message in self:
+            recv = ejson.loads(message)
+            if recv["msg"] == "result":
+                self._invoke_method_handler(recv)
+            else:
+                logger.error(
+                    f"Unhandled message from server:\n%s", pprint.pformat(recv)
+                )
 
 
 def truenas_auth_protocol_factory(
