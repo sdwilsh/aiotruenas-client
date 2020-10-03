@@ -66,7 +66,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-### Working With Methods
+### Working With Methods & Subscriptions
 
 When adding support for a new object, or updating existing code, it can be useful to see the raw response from the
 TrueNAS machine from time to time. In order to help do that easily, you can drop a `.auth.yaml` file in the root of
@@ -78,10 +78,16 @@ username: "someuser"
 password: "somepassword"
 ```
 
-Then use `scripts/invoke_method.py` to call a method:
+Use `scripts/invoke_method.py` to call a method:
 
 ```
 python scripts/invoke_method.py disk.query
 ```
 
-Run it with -h to see additional options.
+Use `scripts/subscribe.py` to subscribe to a topic:
+
+```
+python scripts/subscribe.py reporting.realtime
+```
+
+Run either with -h to see additional options.
