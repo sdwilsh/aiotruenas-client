@@ -59,7 +59,10 @@ class TestCachingMachineGetSystemInfo(IsolatedAsyncioTestCase):
     async def test_get_system_info(self) -> None:
         HOSTNAME = "some.hostname.com"
         self._server.register_method_handler(
-            "system.info", lambda *args: {"hostname": HOSTNAME,}
+            "system.info",
+            lambda *args: {
+                "hostname": HOSTNAME,
+            },
         )
 
         info = await self._machine.get_system_info()

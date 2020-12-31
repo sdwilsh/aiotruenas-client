@@ -14,7 +14,10 @@ def init_argparse() -> argparse.ArgumentParser:
     )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
-        "-i", "--insecure", action="store_true", help="Do not encrypt connection",
+        "-i",
+        "--insecure",
+        action="store_true",
+        help="Do not encrypt connection",
     )
     parser.add_argument(
         "name", help="The subscription name to subscribe to on the remote machine."
@@ -37,11 +40,18 @@ def init_argparse() -> argparse.ArgumentParser:
 
 
 async def subscribe(
-    host: str, username: str, password: str, secure: bool, name: str,
+    host: str,
+    username: str,
+    password: str,
+    secure: bool,
+    name: str,
 ) -> None:
     print(f"Connecting to {host} to subscribe to {name}...")
     machine = await Machine.create(
-        host=host, username=username, password=password, secure=secure,
+        host=host,
+        username=username,
+        password=password,
+        secure=secure,
     )
     queue = await machine._client.subscribe(name)
     while True:

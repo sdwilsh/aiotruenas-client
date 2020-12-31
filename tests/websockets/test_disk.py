@@ -63,7 +63,8 @@ class TestDisk(IsolatedAsyncioTestCase):
         self.assertEqual(len(self._machine.disks), 1)
         disk = self._machine.disks[0]
         self.assertEqual(
-            disk.description, DESCRIPTION,
+            disk.description,
+            DESCRIPTION,
         )
         self.assertEqual(disk.model, MODEL)
         self.assertEqual(disk.name, NAME)
@@ -97,7 +98,8 @@ class TestDisk(IsolatedAsyncioTestCase):
         self.assertEqual(len(self._machine.disks), 1)
         disk = self._machine.disks[0]
         self.assertEqual(
-            disk.description, DESCRIPTION,
+            disk.description,
+            DESCRIPTION,
         )
         self.assertEqual(disk.model, MODEL)
         self.assertEqual(disk.name, NAME)
@@ -122,7 +124,8 @@ class TestDisk(IsolatedAsyncioTestCase):
             ],
         )
         self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {"ada0": TEMPERATURE},
+            "disk.temperatures",
+            lambda *args: {"ada0": TEMPERATURE},
         )
 
         await self._machine.get_disks(include_temperature=True)
@@ -146,7 +149,8 @@ class TestDisk(IsolatedAsyncioTestCase):
             ],
         )
         self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {"ada0": 42},
+            "disk.temperatures",
+            lambda *args: {"ada0": 42},
         )
 
         await self._machine.get_disks()
@@ -155,7 +159,9 @@ class TestDisk(IsolatedAsyncioTestCase):
         self.assertTrue(disk.available)
 
         self._server.register_method_handler(
-            "disk.query", lambda *args: [], override=True,
+            "disk.query",
+            lambda *args: [],
+            override=True,
         )
         await self._machine.get_disks()
         self.assertFalse(disk.available)
@@ -182,13 +188,16 @@ class TestDisk(IsolatedAsyncioTestCase):
             ],
         )
         self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {NAME: 42},
+            "disk.temperatures",
+            lambda *args: {NAME: 42},
         )
         await self._machine.get_disks()
         disk = self._machine.disks[0]
         assert disk is not None
         self._server.register_method_handler(
-            "disk.query", lambda *args: [], override=True,
+            "disk.query",
+            lambda *args: [],
+            override=True,
         )
         await self._machine.get_disks()
 
@@ -215,7 +224,8 @@ class TestDisk(IsolatedAsyncioTestCase):
             ],
         )
         self._server.register_method_handler(
-            "disk.temperatures", lambda *args: {"ada0": 42},
+            "disk.temperatures",
+            lambda *args: {"ada0": 42},
         )
         await self._machine.get_disks()
         original_disk = self._machine.disks[0]

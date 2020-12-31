@@ -39,7 +39,8 @@ class TrueNASServer(object):
         self._method_handlers = {}
 
         self.register_method_handler(
-            "auth.login", lambda u, p: u == self.username and p == self.password,
+            "auth.login",
+            lambda u, p: u == self.username and p == self.password,
         )
 
         self._serve_handle = websockets.serve(self._handle_messages, "localhost", 8000)
@@ -82,7 +83,10 @@ class TrueNASServer(object):
 
         async def fail():
             await send(
-                {"msg": "failed", "version": "1",}
+                {
+                    "msg": "failed",
+                    "version": "1",
+                }
             )
 
         data = ejson.loads(await websocket.recv())
