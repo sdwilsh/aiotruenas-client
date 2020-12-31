@@ -35,16 +35,44 @@ class CachingMachine(Machine):
 
     @classmethod
     async def create(
-        cls, host: str, password: str, username: str = "root", secure: bool = True
+        cls,
+        host: str,
+        password: Optional[str] = None,
+        username: Optional[str] = "root",
+        secure: bool = True,
+        token: Optional[str] = None,
     ) -> TCachingMachine:
+        if password is not None and token is not None:
+            raise ValueError("Only one of password and token can be used.")
+        if password is None and token is None:
+            raise ValueError("Either password or token must be goven.")
         m = CachingMachine()
-        await m.connect(host=host, password=password, username=username, secure=secure)
+        if password is not None:
+            await m.connect(
+                host=host,
+                password=password,
+                username=username,
+                secure=secure,
+                token=token,
+            )
         return m
 
     async def connect(
-        self, host: str, password: str, username: str, secure: bool
+        self,
+        host: str,
+        password: Optional[str],
+        username: Optional[str],
+        secure: bool,
+        token: Optional[str],
     ) -> None:
         """Connects to the remote machine."""
+        if password is not None:
+            auth_protocol = truenas_auth_protocol_factory(username, password)
+        # add other auth here
+        await self._connect(auth_protocol, host, secure)
+
+    async def _connect(self, auth_protocol, host, secure):
+        """Executes connection."""
         assert self._client is None
         if not secure:
             protocol = "ws"
@@ -54,7 +82,7 @@ class CachingMachine(Machine):
             context = ssl.SSLContext()
         self._client = await websockets.connect(
             f"{protocol}://{host}/websocket",
-            create_protocol=truenas_auth_protocol_factory(username, password),
+            create_protocol=auth_protocol,
             ssl=context,
         )
 
