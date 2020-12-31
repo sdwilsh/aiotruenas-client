@@ -126,7 +126,10 @@ class CachingDiskStateFetcher(object):
         disks_by_name = {disk["name"]: disk for disk in disks}
         if len(disks_by_name) > 0 and self._fetch_temperature:
             temps = await self._parent._client.invoke_method(
-                "disk.temperatures", [[disk for disk in disks_by_name],],
+                "disk.temperatures",
+                [
+                    [disk for disk in disks_by_name],
+                ],
             )
             for name, temp in temps.items():
                 disks_by_name[name]["temperature"] = temp

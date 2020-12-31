@@ -95,7 +95,9 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
         self.assertTrue(vm.available)
 
         self._server.register_method_handler(
-            "vm.query", lambda *args: [], override=True,
+            "vm.query",
+            lambda *args: [],
+            override=True,
         )
         await self._machine.get_vms()
         self.assertFalse(vm.available)
@@ -121,7 +123,9 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
         vm = self._machine.vms[0]
         assert vm is not None
         self._server.register_method_handler(
-            "vm.query", lambda *args: [], override=True,
+            "vm.query",
+            lambda *args: [],
+            override=True,
         )
         await self._machine.get_vms()
 
@@ -169,7 +173,8 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
             return None
 
         self._server.register_method_handler(
-            "vm.start", start_handler,
+            "vm.start",
+            start_handler,
         )
         await self._machine.get_vms()
         vm = self._machine.vms[0]
@@ -197,7 +202,8 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
             return True
 
         self._server.register_method_handler(
-            "vm.stop", stop_handler,
+            "vm.stop",
+            stop_handler,
         )
         await self._machine.get_vms()
         vm = self._machine.vms[0]
@@ -224,7 +230,8 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
             return True
 
         self._server.register_method_handler(
-            "vm.restart", restart_handler,
+            "vm.restart",
+            restart_handler,
         )
         await self._machine.get_vms()
         vm = self._machine.vms[0]

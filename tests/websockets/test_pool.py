@@ -105,7 +105,9 @@ class TestPool(IsolatedAsyncioTestCase):
         self.assertTrue(pool.available)
 
         self._server.register_method_handler(
-            "pool.query", lambda *args: [], override=True,
+            "pool.query",
+            lambda *args: [],
+            override=True,
         )
         await self._machine.get_pools()
         self.assertFalse(pool.available)
@@ -137,7 +139,9 @@ class TestPool(IsolatedAsyncioTestCase):
         pool = self._machine.pools[0]
         assert pool is not None
         self._server.register_method_handler(
-            "pool.query", lambda *args: [], override=True,
+            "pool.query",
+            lambda *args: [],
+            override=True,
         )
         await self._machine.get_pools()
 
@@ -150,7 +154,13 @@ class TestPool(IsolatedAsyncioTestCase):
 
     async def test_same_instance_after_get_pools(self) -> None:
         self._server.register_method_handler(
-            "pool.query", lambda *args: [{"guid": 500, "name": "test_pool",},],
+            "pool.query",
+            lambda *args: [
+                {
+                    "guid": 500,
+                    "name": "test_pool",
+                },
+            ],
         )
         await self._machine.get_pools()
         original_pool = self._machine.pools[0]
@@ -159,7 +169,12 @@ class TestPool(IsolatedAsyncioTestCase):
         self.assertIs(original_pool, new_pool)
 
     def test_eq_impl(self) -> None:
-        self._machine._pool_fetcher._state = {200: {"guid": 200, "name": "test_pool",}}
+        self._machine._pool_fetcher._state = {
+            200: {
+                "guid": 200,
+                "name": "test_pool",
+            }
+        }
         a = CachingPool(self._machine._pool_fetcher, 200)
         b = CachingPool(self._machine._pool_fetcher, 200)
         self.assertEqual(a, b)

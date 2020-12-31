@@ -83,7 +83,8 @@ class CachingVirtualMachineStateFetcher(object):
     async def _start_vm(self, vm: VirtualMachine, overcommit: bool = False) -> bool:
         assert self._parent._client is not None
         return await self._parent._client.invoke_method(
-            "vm.start", [vm.id, {"overcommit": overcommit}],
+            "vm.start",
+            [vm.id, {"overcommit": overcommit}],
         )
 
     async def _stop_vm(self, vm: VirtualMachine, force: bool = False) -> bool:
@@ -100,7 +101,18 @@ class CachingVirtualMachineStateFetcher(object):
     async def _fetch_vms(self) -> Dict[str, dict]:
         assert self._parent._client is not None
         vms = await self._parent._client.invoke_method(
-            "vm.query", [[], {"select": ["id", "name", "description", "status",],},],
+            "vm.query",
+            [
+                [],
+                {
+                    "select": [
+                        "id",
+                        "name",
+                        "description",
+                        "status",
+                    ],
+                },
+            ],
         )
         return {vm["id"]: vm for vm in vms}
 

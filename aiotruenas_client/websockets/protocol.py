@@ -67,7 +67,13 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
     async def handshake(self, *args, **kwargs):
         await WebSocketClientProtocol.handshake(self, *args, **kwargs)
         await self.send(
-            ejson.dumps({"msg": "connect", "version": "1", "support": ["1"],})
+            ejson.dumps(
+                {
+                    "msg": "connect",
+                    "version": "1",
+                    "support": ["1"],
+                }
+            )
         )
         recv = ejson.loads(await self.recv())
         if recv["msg"] != "connected":
@@ -89,7 +95,12 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
         self._invoke_method_futures[id] = recv_future
         await super().send(
             ejson.dumps(
-                {"id": id, "msg": "method", "method": method, "params": params,}
+                {
+                    "id": id,
+                    "msg": "method",
+                    "method": method,
+                    "params": params,
+                }
             )
         )
         recv = await recv_future
@@ -99,7 +110,15 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
         id = str(uuid.uuid4())
         sub_future = asyncio.get_event_loop().create_future()
         self._pending_subscription_data[id] = PendingSubscriptionData(name, sub_future)
-        await super().send(ejson.dumps({"id": id, "msg": "sub", "name": name,}))
+        await super().send(
+            ejson.dumps(
+                {
+                    "id": id,
+                    "msg": "sub",
+                    "name": name,
+                }
+            )
+        )
         return await sub_future
 
     def _invoke_method_handler(self, message: Dict[str, Any]) -> None:
