@@ -59,10 +59,8 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
     # Keyed be the "name" when subscribing, which is the "collection" when data comes in.
     _subscription_data: Dict[str, SubscriptionData] = {}
 
-    def __init__(self, *args, username: str, password: str, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._username = username
-        self._password = password
 
     async def handshake(self, *args, **kwargs):
         await WebSocketClientProtocol.handshake(self, *args, **kwargs)
@@ -82,9 +80,7 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
 
         asyncio.create_task(self._websocket_message_handler())
 
-        result = await self.invoke_method(
-            "auth.login", [self._username, self._password]
-        )
+        result = await self._authenticate()
         if not result:
             await self.close()
             raise websockets.exceptions.SecurityError("Unable to authenticate.")
@@ -163,9 +159,39 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
                 )
 
 
-def truenas_auth_protocol_factory(
-    username: str, password: str
-) -> Callable[[Any], TrueNASWebSocketClientProtocol]:
+class TrueNASWebSocketClientProtocolPassword(TrueNASWebSocketClientProtocol):
+    """Password authentication."""
+
+    def __init__(self, *args, username: str, password: str, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._username = username
+        self._password = password
+
+    async def _authenticate(self):
+        return await self.invoke_method("auth.login", [self._username, self._password])
+
+
+class TrueNASWebSocketClientProtocolToken(TrueNASWebSocketClientProtocol):
+    """Token authentication."""
+
+    def __init__(self, *args, token: str, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._token = token
+
+    async def _authenticate(self):
+        return await self.invoke_method("auth.token", [self._token])
+
+
+def truenas_password_auth_protocol_factory(
+    username: str,
+    password: str,
+) -> Callable[[Any], TrueNASWebSocketClientProtocolPassword]:
     return functools.partial(
-        TrueNASWebSocketClientProtocol, username=username, password=password
+        TrueNASWebSocketClientProtocolPassword, username=username, password=password
     )
+
+
+def truenas_token_auth_protocol_factory(
+    token: str,
+) -> Callable[[Any], TrueNASWebSocketClientProtocolToken]:
+    return functools.partial(TrueNASWebSocketClientProtocolToken, token=token)
