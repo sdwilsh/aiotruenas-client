@@ -13,7 +13,8 @@ from .pool import CachingPoolStateFetcher, CachingPool
 from .virtualmachine import CachingVirtualMachineStateFetcher, CachingVirtualMachine
 from .protocol import (
     TrueNASWebSocketClientProtocol,
-    truenas_auth_protocol_factory,
+    truenas_password_auth_protocol_factory,
+    truenas_token_auth_protocol_factory,
 )
 
 TCachingMachine = TypeVar("TCachingMachine", bound="CachingMachine")
@@ -47,14 +48,13 @@ class CachingMachine(Machine):
         if password is None and token is None:
             raise ValueError("Either password or token must be goven.")
         m = CachingMachine()
-        if password is not None:
-            await m.connect(
-                host=host,
-                password=password,
-                username=username,
-                secure=secure,
-                token=token,
-            )
+        await m.connect(
+            host=host,
+            password=password,
+            username=username,
+            secure=secure,
+            token=token,
+        )
         return m
 
     async def connect(
@@ -67,8 +67,9 @@ class CachingMachine(Machine):
     ) -> None:
         """Connects to the remote machine."""
         if password is not None:
-            auth_protocol = truenas_auth_protocol_factory(username, password)
-        # add other auth here
+            auth_protocol = truenas_password_auth_protocol_factory(username, password)
+        if token is not None:
+            auth_protocol = truenas_token_auth_protocol_factory(token)
         await self._connect(auth_protocol, host, secure)
 
     async def _connect(self, auth_protocol, host, secure):
