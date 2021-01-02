@@ -117,6 +117,9 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
         )
         return await sub_future
 
+    async def _authenticate(self):
+        raise NotImplementedError
+
     def _invoke_method_handler(self, message: Dict[str, Any]) -> None:
         if message["id"] not in self._invoke_method_futures:
             logger.error(f"Message id %s is not one we are expecting!", message["id"])
