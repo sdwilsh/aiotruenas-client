@@ -46,7 +46,7 @@ class CachingMachine(Machine):
         if password is not None and token is not None:
             raise ValueError("Only one of password and token can be used.")
         if password is None and token is None:
-            raise ValueError("Either password or token must be goven.")
+            raise ValueError("Either password or token must be given.")
         m = CachingMachine()
         await m.connect(
             host=host,
