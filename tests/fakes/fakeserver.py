@@ -29,6 +29,7 @@ class TrueNASServer(object):
 
     _username: str
     _password: str
+    _token: str
     _serve_handle: websockets.serve
 
     _method_handlers: Dict[str, TMethodHandler]
@@ -36,11 +37,17 @@ class TrueNASServer(object):
     def __init__(self):
         self._username = "".join(random.choice(string.ascii_letters) for i in range(6))
         self._password = "".join(random.choice(string.ascii_letters) for i in range(6))
+        self._token = "".join(random.choice(string.ascii_letters) for i in range(6))
         self._method_handlers = {}
 
         self.register_method_handler(
             "auth.login",
             lambda u, p: u == self.username and p == self.password,
+        )
+
+        self.register_method_handler(
+            "auth.token",
+            lambda t: t == self.token,
         )
 
         self._serve_handle = websockets.serve(self._handle_messages, "localhost", 8000)
@@ -74,6 +81,11 @@ class TrueNASServer(object):
     def host(self) -> str:
         """The host to use to connect to this server."""
         return "localhost:8000"
+
+    @property
+    def token(self) -> str:
+        """The token that will successfully authenticate with the server."""
+        return self._token
 
     async def _handle_messages(
         self, websocket: websockets.protocol.WebSocketCommonProtocol, _path: str

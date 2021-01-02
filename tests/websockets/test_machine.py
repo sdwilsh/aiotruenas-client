@@ -18,7 +18,7 @@ class TestCachingMachineAuth(IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self._server.stop()
 
-    async def test_successful_auth(self):
+    async def test_successful_auth_password(self):
         machine = await CachingMachine.create(
             self._server.host,
             username=self._server.username,
@@ -27,12 +27,46 @@ class TestCachingMachineAuth(IsolatedAsyncioTestCase):
         )
         await machine.close()
 
-    async def test_unsuccessful_auth(self):
+    async def test_unsuccessful_auth_password(self):
         with self.assertRaises(websockets.exceptions.SecurityError):
             await CachingMachine.create(
                 self._server.host,
                 username="not a real user",
                 password=self._server.password,
+                secure=False,
+            )
+
+    async def test_successful_auth_token(self):
+        machine = await CachingMachine.create(
+            self._server.host,
+            token=self._server.token,
+            secure=False,
+        )
+        await machine.close()
+
+    async def test_unsuccessful_auth_token(self):
+        with self.assertRaises(websockets.exceptions.SecurityError):
+            await CachingMachine.create(
+                self._server.host,
+                token="not a real token",
+                secure=False,
+            )
+
+    async def test_unsuccessful_auth_token_and_password(self):
+        with self.assertRaises(ValueError):
+            await CachingMachine.create(
+                self._server.host,
+                username=self._server.username,
+                password=self._server.password,
+                token=self._server.token,
+                secure=False,
+            )
+
+    async def test_unsuccessful_auth_no_input(self):
+        # username has default value "root"
+        with self.assertRaises(ValueError):
+            await CachingMachine.create(
+                self._server.host,
                 secure=False,
             )
 
