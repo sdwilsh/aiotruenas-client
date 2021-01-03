@@ -91,3 +91,8 @@ python scripts/subscribe.py reporting.realtime
 ```
 
 Run either with -h to see additional options.
+
+
+### Testing
+
+Tests are run with `pytest`.
