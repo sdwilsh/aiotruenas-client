@@ -36,6 +36,11 @@ def init_argparse() -> argparse.ArgumentParser:
         "-u",
         help="The username to authenticiate with.  Loads from .auth.yaml if not present.",
     )
+    parser.add_argument(
+        "--api_key",
+        "-a",
+        help="The api_key to authenticiate with.  Loads from .auth.yaml if not present.",
+    )
     return parser
 
 
@@ -45,12 +50,14 @@ async def subscribe(
     password: str,
     secure: bool,
     name: str,
+    api_key: str,
 ) -> None:
     print(f"Connecting to {host} to subscribe to {name}...")
     machine = await Machine.create(
         host=host,
         username=username,
         password=password,
+        api_key=api_key,
         secure=secure,
     )
     queue = await machine._client.subscribe(name)
@@ -72,6 +79,7 @@ if __name__ == "__main__":
     username = args.username
     password = args.password
     secure = not args.insecure
+    api_key = args.api_key
 
     try:
         with open(".auth.yaml", "r") as stream:
@@ -79,6 +87,7 @@ if __name__ == "__main__":
             host = data.get("host", args.host)
             username = data.get("username", args.username)
             password = data.get("password", args.password)
+            api_key = data.get("api_key", args.api_key)
     except IOError:
         pass
     asyncio.get_event_loop().run_until_complete(
@@ -87,6 +96,7 @@ if __name__ == "__main__":
             username=username,
             password=password,
             secure=secure,
+            api_key=api_key,
             name=args.name,
         )
     )
