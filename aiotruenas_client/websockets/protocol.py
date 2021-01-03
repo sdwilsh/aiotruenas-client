@@ -174,15 +174,15 @@ class TrueNASWebSocketClientProtocolPassword(TrueNASWebSocketClientProtocol):
         return await self.invoke_method("auth.login", [self._username, self._password])
 
 
-class TrueNASWebSocketClientProtocolToken(TrueNASWebSocketClientProtocol):
+class TrueNASWebSocketClientProtocolApiKey(TrueNASWebSocketClientProtocol):
     """Token authentication."""
 
-    def __init__(self, *args, token: str, **kwargs):
+    def __init__(self, *args, api_key: str, **kwargs):
         super().__init__(*args, **kwargs)
-        self._token = token
+        self._api_key = api_key
 
     async def _authenticate(self):
-        return await self.invoke_method("auth.token", [self._token])
+        return await self.invoke_method("auth.login_with_api_key", [self._api_key])
 
 
 def truenas_password_auth_protocol_factory(
@@ -194,7 +194,7 @@ def truenas_password_auth_protocol_factory(
     )
 
 
-def truenas_token_auth_protocol_factory(
-    token: str,
-) -> Callable[[Any], TrueNASWebSocketClientProtocolToken]:
-    return functools.partial(TrueNASWebSocketClientProtocolToken, token=token)
+def truenas_api_key_auth_protocol_factory(
+    api_key: str,
+) -> Callable[[Any], TrueNASWebSocketClientProtocolApiKey]:
+    return functools.partial(TrueNASWebSocketClientProtocolApiKey, api_key=api_key)
