@@ -72,10 +72,17 @@ When adding support for a new object, or updating existing code, it can be usefu
 TrueNAS machine from time to time. In order to help do that easily, you can drop a `.auth.yaml` file in the root of
 the repository, with the following content:
 
-```
+```yaml
 host: "some.host.name"
 username: "someuser"
 password: "somepassword"
+```
+
+Alternatively, an api key can be used:
+
+```yaml
+host: "some.host.name"
+api_key: "someapikey"
 ```
 
 Use `scripts/invoke_method.py` to call a method:
