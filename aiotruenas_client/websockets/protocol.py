@@ -119,7 +119,7 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
         return await sub_future
 
     @abstractmethod
-    async def _authenticate(self):
+    async def _authenticate(self) -> Any:
         """
         Authentication method.
 
@@ -179,7 +179,7 @@ class TrueNASWebSocketClientProtocolPassword(TrueNASWebSocketClientProtocol):
         self._username = username
         self._password = password
 
-    async def _authenticate(self):
+    async def _authenticate(self) -> Any:
         return await self.invoke_method("auth.login", [self._username, self._password])
 
 
@@ -190,7 +190,7 @@ class TrueNASWebSocketClientProtocolApiKey(TrueNASWebSocketClientProtocol):
         super().__init__(*args, **kwargs)
         self._api_key = api_key
 
-    async def _authenticate(self):
+    async def _authenticate(self) -> Any:
         return await self.invoke_method("auth.login_with_api_key", [self._api_key])
 
 
