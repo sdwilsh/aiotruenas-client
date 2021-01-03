@@ -38,41 +38,43 @@ class CachingMachine(Machine):
     async def create(
         cls,
         host: str,
-        password: Optional[str] = None,
-        username: Optional[str] = "root",
-        secure: bool = True,
         api_key: Optional[str] = None,
+        password: Optional[str] = None,
+        username: Optional[str] = None,
+        secure: bool = True,
     ) -> TCachingMachine:
         m = CachingMachine()
         await m.connect(
             host=host,
+            api_key=api_key,
             password=password,
             username=username,
             secure=secure,
-            api_key=api_key,
         )
         return m
 
     async def connect(
         self,
         host: str,
+        api_key: Optional[str],
         password: Optional[str],
         username: Optional[str],
         secure: bool,
-        api_key: Optional[str],
     ) -> None:
         """Connects to the remote machine."""
-        if password and api_key:
-            raise ValueError("Only one of password and api_key can be used.")
+        if api_key and (password or username):
+            raise ValueError("Only one of password/username and api_key can be used.")
         if password and not username:
             raise ValueError("Username is missing.")
-        if not password and not api_key:
-            raise ValueError("Either password or api_key must be given.")
+        if not password and username:
+            raise ValueError("Password is missing.")
+        if not password and not username and not api_key:
+            raise ValueError("Either password/username or api_key must be given.")
 
-        if password:
-            auth_protocol = truenas_password_auth_protocol_factory(username, password)
         if api_key:
             auth_protocol = truenas_api_key_auth_protocol_factory(api_key)
+        if password:
+            auth_protocol = truenas_password_auth_protocol_factory(username, password)
 
         await self._connect(auth_protocol, host, secure)
 
