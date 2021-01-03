@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import asyncio
 import ejson
 import functools
@@ -117,8 +118,9 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
         )
         return await sub_future
 
+    @abstractmethod
     async def _authenticate(self):
-        raise NotImplementedError
+        """Authentication method."""
 
     def _invoke_method_handler(self, message: Dict[str, Any]) -> None:
         if message["id"] not in self._invoke_method_futures:
