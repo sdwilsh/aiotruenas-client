@@ -1,4 +1,3 @@
-from abc import abstractmethod
 import asyncio
 import ejson
 import functools
@@ -7,6 +6,7 @@ import pprint
 import uuid
 import websockets
 
+from abc import abstractmethod
 from typing import (
     Any,
     Callable,
@@ -120,7 +120,14 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
 
     @abstractmethod
     async def _authenticate(self):
-        """Authentication method."""
+        """
+        Authentication method.
+
+        Must call an `auth` websocket method and return result.  For example:
+        ```
+        return await self.invoke_method("auth.login_with_api_key", [self._api_key])
+        ```
+        """
 
     def _invoke_method_handler(self, message: Dict[str, Any]) -> None:
         if message["id"] not in self._invoke_method_futures:
