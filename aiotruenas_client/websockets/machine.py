@@ -43,10 +43,6 @@ class CachingMachine(Machine):
         secure: bool = True,
         api_key: Optional[str] = None,
     ) -> TCachingMachine:
-        if password is not None and api_key is not None:
-            raise ValueError("Only one of password and api_key can be used.")
-        if password is None and api_key is None:
-            raise ValueError("Either password or api_key must be given.")
         m = CachingMachine()
         await m.connect(
             host=host,
@@ -66,10 +62,18 @@ class CachingMachine(Machine):
         api_key: Optional[str],
     ) -> None:
         """Connects to the remote machine."""
-        if password is not None:
+        if password and api_key:
+            raise ValueError("Only one of password and api_key can be used.")
+        if password and not username:
+            raise ValueError("Username is missing.")
+        if not password and not api_key:
+            raise ValueError("Either password or api_key must be given.")
+
+        if password:
             auth_protocol = truenas_password_auth_protocol_factory(username, password)
-        if api_key is not None:
+        if api_key:
             auth_protocol = truenas_api_key_auth_protocol_factory(api_key)
+
         await self._connect(auth_protocol, host, secure)
 
     async def _connect(self, auth_protocol, host, secure):
