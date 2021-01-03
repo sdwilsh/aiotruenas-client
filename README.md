@@ -18,13 +18,14 @@ from aiotruenas_client import CachingMachine as TrueNASMachine
 
 machine = await TrueNASMachine.create(
     "hostname.of.machine",
-    username="someuser",
-    password="password",
+    api_key="someapikey"
 )
 disks = await machine.get_disks()
 pools = await machine.get_pools()
 vms = await machine.get_vms()
 ```
+
+Alternatively, a username and password may also be supplied.
 
 ### `Machine`
 
@@ -71,14 +72,6 @@ pre-commit install
 When adding support for a new object, or updating existing code, it can be useful to see the raw response from the
 TrueNAS machine from time to time. In order to help do that easily, you can drop a `.auth.yaml` file in the root of
 the repository, with the following content:
-
-```yaml
-host: "some.host.name"
-username: "someuser"
-password: "somepassword"
-```
-
-Alternatively, an api key can be used:
 
 ```yaml
 host: "some.host.name"
