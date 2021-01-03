@@ -36,29 +36,29 @@ class TestCachingMachineAuth(IsolatedAsyncioTestCase):
                 secure=False,
             )
 
-    async def test_successful_auth_token(self):
+    async def test_successful_auth_api_key(self):
         machine = await CachingMachine.create(
             self._server.host,
-            token=self._server.token,
+            api_key=self._server.api_key,
             secure=False,
         )
         await machine.close()
 
-    async def test_unsuccessful_auth_token(self):
+    async def test_unsuccessful_auth_api_key(self):
         with self.assertRaises(websockets.exceptions.SecurityError):
             await CachingMachine.create(
                 self._server.host,
-                token="not a real token",
+                api_key="not a real api_key",
                 secure=False,
             )
 
-    async def test_unsuccessful_auth_token_and_password(self):
+    async def test_unsuccessful_auth_api_key_and_password(self):
         with self.assertRaises(ValueError):
             await CachingMachine.create(
                 self._server.host,
                 username=self._server.username,
                 password=self._server.password,
-                token=self._server.token,
+                api_key=self._server.api_key,
                 secure=False,
             )
 

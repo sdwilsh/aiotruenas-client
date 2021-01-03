@@ -14,7 +14,7 @@ from .virtualmachine import CachingVirtualMachineStateFetcher, CachingVirtualMac
 from .protocol import (
     TrueNASWebSocketClientProtocol,
     truenas_password_auth_protocol_factory,
-    truenas_token_auth_protocol_factory,
+    truenas_api_key_auth_protocol_factory,
 )
 
 TCachingMachine = TypeVar("TCachingMachine", bound="CachingMachine")
@@ -41,19 +41,19 @@ class CachingMachine(Machine):
         password: Optional[str] = None,
         username: Optional[str] = "root",
         secure: bool = True,
-        token: Optional[str] = None,
+        api_key: Optional[str] = None,
     ) -> TCachingMachine:
-        if password is not None and token is not None:
-            raise ValueError("Only one of password and token can be used.")
-        if password is None and token is None:
-            raise ValueError("Either password or token must be given.")
+        if password is not None and api_key is not None:
+            raise ValueError("Only one of password and api_key can be used.")
+        if password is None and api_key is None:
+            raise ValueError("Either password or api_key must be given.")
         m = CachingMachine()
         await m.connect(
             host=host,
             password=password,
             username=username,
             secure=secure,
-            token=token,
+            api_key=api_key,
         )
         return m
 
@@ -63,13 +63,13 @@ class CachingMachine(Machine):
         password: Optional[str],
         username: Optional[str],
         secure: bool,
-        token: Optional[str],
+        api_key: Optional[str],
     ) -> None:
         """Connects to the remote machine."""
         if password is not None:
             auth_protocol = truenas_password_auth_protocol_factory(username, password)
-        if token is not None:
-            auth_protocol = truenas_token_auth_protocol_factory(token)
+        if api_key is not None:
+            auth_protocol = truenas_api_key_auth_protocol_factory(api_key)
         await self._connect(auth_protocol, host, secure)
 
     async def _connect(self, auth_protocol, host, secure):
