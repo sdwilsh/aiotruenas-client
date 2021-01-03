@@ -70,12 +70,18 @@ class TestCachingMachineAuth(IsolatedAsyncioTestCase):
             )
 
     async def test_unsuccessful_auth_no_username(self):
-        # username has default value "root"
         with self.assertRaises(ValueError):
             await CachingMachine.create(
                 self._server.host,
-                username=None,
                 password=self._server.password,
+                secure=False,
+            )
+
+    async def test_unsuccessful_auth_no_password(self):
+        with self.assertRaises(ValueError):
+            await CachingMachine.create(
+                self._server.host,
+                username=self._server.username,
                 secure=False,
             )
 
