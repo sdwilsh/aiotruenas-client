@@ -21,7 +21,7 @@ class DiskType(Enum):
 
 class Disk(ABC):
     def __init__(self, serial: str) -> None:
-        self._serial = serial
+        self._serial = serial.strip()
 
     @property
     @abstractmethod

@@ -130,7 +130,7 @@ class CachingDiskStateFetcher(object):
 
         # Disks should be keyed by serial for long-term storage (unique), but
         # it is easier to work by name above.
-        return {disk["serial"]: disk for disk in disks_by_name.values()}
+        return {disk["serial"].strip(): disk for disk in disks_by_name.values()}
 
     def _update_properties_from_state(self) -> None:
         available_disks_by_serial = {
