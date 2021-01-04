@@ -116,6 +116,10 @@ def update_main_branch(
     print(
         f"Updating main to use version {next_version} now that {release_version} is branched."
     )
+    subprocess.run(
+        ["git", "branch", "-m", "version-bump", f"v{next_version}-version-bump"],
+        check=True,
+    )
     write_version_to_file(next_version, verbose)
     subprocess.run(["git", "add", CONFIG_FILE])
     subprocess.run(
