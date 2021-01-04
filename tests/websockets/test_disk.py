@@ -244,6 +244,28 @@ class TestDisk(IsolatedAsyncioTestCase):
         b = CachingDisk(self._machine._disk_fetcher, "ada0")
         self.assertEqual(a, b)
 
+    async def test_serial_with_edge_whitespace(self) -> None:
+        SERIAL = "NOTREALSERIAL"
+        self._server.register_method_handler(
+            "disk.query",
+            lambda *args: [
+                {
+                    "description": "Some Desc",
+                    "model": "Samsung SSD 860 EVO 250GB",
+                    "name": "ada0",
+                    "serial": f" {SERIAL} ",
+                    "size": 250059350016,
+                    "type": "SSD",
+                },
+            ],
+        )
+
+        await self._machine.get_disks()
+
+        self.assertEqual(len(self._machine.disks), 1)
+        disk = self._machine.disks[0]
+        self.assertEqual(disk.serial, SERIAL)
+
 
 if __name__ == "__main__":
     unittest.main()
