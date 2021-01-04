@@ -1,6 +1,6 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from enum import Enum, unique
-from typing import TypeVar, Optional
+from typing import Optional, TypeVar
 
 TType = TypeVar("TType", bound="DiskType")
 

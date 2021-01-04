@@ -1,9 +1,6 @@
-from abc import abstractmethod, ABC
-from typing import (
-    Any,
-    Dict,
-    List,
-)
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List
+
 from .disk import Disk
 from .pool import Pool
 from .virtualmachine import VirtualMachine

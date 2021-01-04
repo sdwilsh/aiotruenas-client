@@ -1,19 +1,13 @@
 import asyncio
 import datetime
-import ejson
 import random
 import string
 import uuid
-import websockets
+from typing import Any, Callable, Dict, List, TypeVar, Union
 
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    TypeVar,
-    Union,
-)
+import ejson
+
+import websockets
 
 TServer = TypeVar("TServer", bound="TrueNASServer")
 

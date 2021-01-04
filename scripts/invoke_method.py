@@ -3,13 +3,11 @@ import asyncio
 import json
 import logging
 import pprint
+from typing import Any, List
+
 import yaml
 
 from aiotruenas_client.websockets import CachingMachine as Machine
-from typing import (
-    Any,
-    List,
-)
 
 
 def init_argparse() -> argparse.ArgumentParser:

@@ -1,8 +1,5 @@
-from typing import (
-    Dict,
-    List,
-    TypeVar,
-)
+from typing import Dict, List, TypeVar
+
 from ..virtualmachine import VirtualMachine, VirtualMachineState
 
 TCachingDiskStateFetcher = TypeVar("TCachingDiskStateFetcher", bound="CachingMachine")
