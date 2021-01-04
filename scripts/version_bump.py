@@ -35,8 +35,16 @@ def has_clean_git_status(ignore_untracked: bool) -> bool:
 
 
 def checkout_main_branch() -> None:
-    subprocess.run(["git", "fetch"], check=True)
-    subprocess.run(["git", "checkout", "-b", "version-bump", "origin/main"], check=True)
+    subprocess.run(
+        ["git", "fetch"],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "checkout", "-b", "version-bump", "origin/main"],
+        check=True,
+        capture_output=True,
+    )
 
 
 def get_current_revision(verbose: bool) -> str:
@@ -79,7 +87,11 @@ def cut_release_branch(release_version: Version, verbose: bool) -> None:
     pre_release_rev = get_current_revision(verbose)
     print(f"Cutting release {release_version} from {pre_release_rev}")
     write_version_to_file(release_version, verbose)
-    subprocess.run(["git", "add", CONFIG_FILE], check=True)
+    subprocess.run(
+        ["git", "add", CONFIG_FILE],
+        check=True,
+        capture_output=True,
+    )
     subprocess.run(
         [
             "git",
@@ -91,6 +103,7 @@ Based on {pre_release_rev}
 """,
         ],
         check=True,
+        capture_output=True,
     )
     subprocess.run(
         [
@@ -100,6 +113,7 @@ Based on {pre_release_rev}
             f"HEAD:refs/heads/v{release_version.major}.{release_version.minor}",
         ],
         check=True,
+        capture_output=True,
     )
     print(
         f"Release branch for v{release_version.major}.{release_version.minor} has been created."
@@ -107,7 +121,11 @@ Based on {pre_release_rev}
     print(
         f"Please go to https://github.com/sdwilsh/aiotruenas-client/releases/new to create a new release for v{release_version.major}.{release_version.minor}."
     )
-    subprocess.run(["git", "reset", "--hard", pre_release_rev], check=True)
+    subprocess.run(
+        ["git", "reset", "--hard", pre_release_rev],
+        check=True,
+        capture_output=True,
+    )
 
 
 def update_main_branch(
@@ -119,6 +137,7 @@ def update_main_branch(
     subprocess.run(
         ["git", "branch", "-m", "version-bump", f"v{next_version}-version-bump"],
         check=True,
+        capture_output=True,
     )
     write_version_to_file(next_version, verbose)
     subprocess.run(["git", "add", CONFIG_FILE])
@@ -132,6 +151,7 @@ def update_main_branch(
 v{release_version.major}.{release_version.minor} branch has been cut.""",
         ],
         check=True,
+        capture_output=True,
     )
     subprocess.run(
         [
@@ -141,6 +161,7 @@ v{release_version.major}.{release_version.minor} branch has been cut.""",
             f"HEAD:refs/heads/v{next_version}-version-bump",
         ],
         check=True,
+        capture_output=True,
     )
     print(
         f"Please go to https://github.com/sdwilsh/aiotruenas-client/pull/new/v{next_version}-version-bump to open a pull request."
