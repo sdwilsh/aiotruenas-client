@@ -1,12 +1,9 @@
 import unittest
-import websockets
-
 from unittest import IsolatedAsyncioTestCase
+
+import websockets
 from aiotruenas_client.websockets import CachingMachine
-from tests.fakes.fakeserver import (
-    CommonQueries,
-    TrueNASServer,
-)
+from tests.fakes.fakeserver import CommonQueries, TrueNASServer
 
 
 class TestCachingMachineAuth(IsolatedAsyncioTestCase):

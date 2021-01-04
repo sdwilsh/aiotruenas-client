@@ -1,12 +1,6 @@
-from typing import (
-    Any,
-    Dict,
-    List,
-    TypeVar,
-    Optional,
-)
-from ..disk import Disk, DiskType
+from typing import Any, Dict, List, Optional, TypeVar
 
+from ..disk import Disk, DiskType
 
 TCachingMachine = TypeVar("TCachingMachine", bound="TCachingMachine")
 TCachingDiskStateFetcher = TypeVar(

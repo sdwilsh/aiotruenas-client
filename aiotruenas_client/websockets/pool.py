@@ -1,9 +1,5 @@
-from typing import (
-    Any,
-    Dict,
-    List,
-    TypeVar,
-)
+from typing import Any, Dict, List, TypeVar
+
 from ..pool import Pool, PoolStatus
 
 TCachingMachine = TypeVar("TCachingMachine", bound="TCachingMachine")

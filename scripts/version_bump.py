@@ -2,6 +2,7 @@ import argparse
 import configparser
 import os
 import subprocess
+
 from packaging.version import Version
 
 CONFIG_FILE = os.path.join(

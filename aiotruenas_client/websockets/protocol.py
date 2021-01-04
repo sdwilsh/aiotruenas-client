@@ -1,18 +1,14 @@
 import asyncio
-import ejson
 import functools
 import logging
 import pprint
 import uuid
-import websockets
-
 from abc import abstractmethod
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-)
+from typing import Any, Callable, Dict, List
+
+import ejson
+
+import websockets
 from websockets.client import WebSocketClientProtocol
 
 logger = logging.getLogger(__name__)

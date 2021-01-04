@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 import pprint
+
 import yaml
 
 from aiotruenas_client.websockets import CachingMachine as Machine

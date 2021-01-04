@@ -1,21 +1,16 @@
 import unittest
-
+from typing import Any, Dict, List, Union
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import Mock
+
 from aiotruenas_client.disk import DiskType
 from aiotruenas_client.websockets.disk import CachingDisk
 from aiotruenas_client.websockets.machine import CachingMachine
 from tests.fakes.fakeserver import (
-    TrueNASServer,
     TDiskQueryResult,
     TDiskTemperaturesResult,
+    TrueNASServer,
     TVmQueryResult,
-)
-from typing import (
-    Any,
-    Dict,
-    List,
-    Union,
 )
 
 

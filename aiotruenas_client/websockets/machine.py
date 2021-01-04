@@ -1,21 +1,17 @@
 import ssl
+from typing import Any, Dict, List, Optional, TypeVar
+
 import websockets
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    TypeVar,
-)
+
 from ..machine import Machine
-from .disk import CachingDiskStateFetcher, CachingDisk
-from .pool import CachingPoolStateFetcher, CachingPool
-from .virtualmachine import CachingVirtualMachineStateFetcher, CachingVirtualMachine
+from .disk import CachingDisk, CachingDiskStateFetcher
+from .pool import CachingPool, CachingPoolStateFetcher
 from .protocol import (
     TrueNASWebSocketClientProtocol,
-    truenas_password_auth_protocol_factory,
     truenas_api_key_auth_protocol_factory,
+    truenas_password_auth_protocol_factory,
 )
+from .virtualmachine import CachingVirtualMachine, CachingVirtualMachineStateFetcher
 
 TCachingMachine = TypeVar("TCachingMachine", bound="CachingMachine")
 

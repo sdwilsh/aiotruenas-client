@@ -1,6 +1,6 @@
 import unittest
-
 from unittest import IsolatedAsyncioTestCase
+
 from aiotruenas_client.virtualmachine import VirtualMachineState
 from aiotruenas_client.websockets import CachingMachine
 from aiotruenas_client.websockets.virtualmachine import CachingVirtualMachine
