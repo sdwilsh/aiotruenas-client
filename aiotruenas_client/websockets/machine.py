@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, TypeVar
 
 import websockets
 from aiotruenas_client.job import TJobId
+from aiotruenas_client.websockets.jail import CachingJail, CachingJailStateFetcher
 from aiotruenas_client.websockets.job import CachingJob, CachingJobFetcher
 
 from .disk import CachingDisk, CachingDiskStateFetcher
@@ -23,6 +24,7 @@ class CachingMachine(WebsocketMachine):
 
     _client: Optional[TrueNASWebSocketClientProtocol] = None
     _disk_fetcher: CachingDiskStateFetcher
+    _jail_fetcher: CachingJailStateFetcher
     _job_fetcher: CachingJobFetcher
     _pool_fetcher: CachingPoolStateFetcher
     _vm_fetcher: CachingVirtualMachineStateFetcher
@@ -47,6 +49,7 @@ class CachingMachine(WebsocketMachine):
         m._job_fetcher = await CachingJobFetcher.create(machine=m)
 
         m._disk_fetcher = await CachingDiskStateFetcher.create(machine=m)
+        m._jail_fetcher = await CachingJailStateFetcher.create(machine=m)
         m._pool_fetcher = await CachingPoolStateFetcher.create(machine=m)
         m._vm_fetcher = await CachingVirtualMachineStateFetcher.create(machine=m)
         return m
@@ -99,6 +102,15 @@ class CachingMachine(WebsocketMachine):
     def disks(self) -> List[CachingDisk]:
         """Returns a list of cached disks attached to the host."""
         return self._disk_fetcher.disks
+
+    async def get_jails(self) -> List[CachingJail]:
+        """Returns a list of jails configured on the host."""
+        return await self._jail_fetcher.get_jails()
+
+    @property
+    def jails(self) -> List[CachingJail]:
+        """Returns a list of cached jails configured on the host."""
+        return self._jail_fetcher.jails
 
     async def get_job(self, id: TJobId) -> CachingJob:
         """Get the specified Job from the remote machine."""
