@@ -68,14 +68,14 @@ class CachingPool(Pool):
         return self._cached_state["topology"]
 
     @property
-    def _state(self) -> dict:
+    def _state(self) -> Dict[str, Any]:
         """The state of the pool, according to the Machine."""
         return self._fetcher._get_cached_state(self)
 
 
 class CachingPoolStateFetcher(object):
     _parent: TCachingMachine
-    _state: Dict[str, dict]
+    _state: Dict[str, Dict[str, Any]]
     _cached_pools: List[CachingPool]
 
     def __init__(self, machine: TCachingMachine) -> None:
@@ -94,10 +94,10 @@ class CachingPoolStateFetcher(object):
         """Returns a list of pools known to the host."""
         return self._cached_pools
 
-    def _get_cached_state(self, pool: Pool) -> dict:
+    def _get_cached_state(self, pool: Pool) -> Dict[str, Any]:
         return self._state[pool.guid]
 
-    async def _fetch_pools(self) -> Dict[str, dict]:
+    async def _fetch_pools(self) -> Dict[str, Dict[str, Any]]:
         assert self._parent._client is not None
         pools = await self._parent._client.invoke_method(
             "pool.query",

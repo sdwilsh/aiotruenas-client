@@ -1,4 +1,4 @@
-from typing import Dict, List, TypeVar
+from typing import Any, Dict, List, TypeVar
 
 from ..virtualmachine import VirtualMachine, VirtualMachineState
 
@@ -51,14 +51,14 @@ class CachingVirtualMachine(VirtualMachine):
         return VirtualMachineState.fromValue(self._state["status"]["state"])
 
     @property
-    def _state(self) -> dict:
+    def _state(self) -> Dict[str, Any]:
         """The state of the virtual machine, according to the Machine."""
         return self._fetcher._get_cached_state(self)
 
 
 class CachingVirtualMachineStateFetcher(object):
     _parent: TCachingDiskStateFetcher
-    _state: Dict[str, dict]
+    _state: Dict[str, Dict[str, Any]]
     _cached_vms: List[CachingVirtualMachine]
 
     def __init__(self, machine: TCachingDiskStateFetcher) -> None:
@@ -92,10 +92,10 @@ class CachingVirtualMachineStateFetcher(object):
         assert self._parent._client is not None
         return await self._parent._client.invoke_method("vm.restart", [vm.id])
 
-    def _get_cached_state(self, vm: VirtualMachine) -> dict:
+    def _get_cached_state(self, vm: VirtualMachine) -> Dict[str, Any]:
         return self._state[vm.id]
 
-    async def _fetch_vms(self) -> Dict[str, dict]:
+    async def _fetch_vms(self) -> Dict[str, Dict[str, Any]]:
         assert self._parent._client is not None
         vms = await self._parent._client.invoke_method(
             "vm.query",
