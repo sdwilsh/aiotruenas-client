@@ -68,14 +68,14 @@ class CachingDisk(Disk):
         return DiskType.fromValue(self._cached_state["type"])
 
     @property
-    def _state(self) -> dict:
+    def _state(self) -> Dict[str, Any]:
         """The state of the desk, according to the caching fetcher."""
         return self._fetcher._get_cached_state(self)
 
 
 class CachingDiskStateFetcher(object):
     _parent: TCachingMachine
-    _state: Dict[str, dict]
+    _state: Dict[str, Dict[str, Any]]
     _cached_disks: List[CachingDisk]
     _fetch_temperature: bool
 
@@ -96,10 +96,10 @@ class CachingDiskStateFetcher(object):
         """Returns a list of disks attached to the host."""
         return self._cached_disks
 
-    def _get_cached_state(self, disk: Disk) -> dict:
+    def _get_cached_state(self, disk: Disk) -> Dict[str, Any]:
         return self._state[disk.serial]
 
-    async def _fetch_disks(self) -> Dict[str, dict]:
+    async def _fetch_disks(self) -> Dict[str, Dict[str, Any]]:
         assert self._parent._client is not None
         disks = await self._parent._client.invoke_method(
             "disk.query",
