@@ -69,8 +69,10 @@ class CachingMachine(Machine):
 
         if api_key:
             auth_protocol = truenas_api_key_auth_protocol_factory(api_key)
-        if password:
+        elif password:
             auth_protocol = truenas_password_auth_protocol_factory(username, password)
+        else:
+            raise AssertionError
 
         await self._connect(auth_protocol, host, secure)
 
