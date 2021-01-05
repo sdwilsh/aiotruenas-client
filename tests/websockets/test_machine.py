@@ -117,5 +117,22 @@ class TestCachingMachineGetSystemInfo(IsolatedAsyncioTestCase):
         self.assertEqual(info["hostname"], HOSTNAME)
 
 
+class TestCachingMachineClosed(IsolatedAsyncioTestCase):
+    def setUp(self):
+        self._server = TrueNASServer()
+
+    async def test_closed(self) -> None:
+        machine = await CachingMachine.create(
+            self._server.host,
+            api_key=self._server.api_key,
+            secure=False,
+        )
+
+        self.assertFalse(machine.closed)
+
+        await self._server.stop()
+        self.assertTrue(machine.closed)
+
+
 if __name__ == "__main__":
     unittest.main()
