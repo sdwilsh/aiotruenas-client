@@ -97,6 +97,11 @@ class CachingMachine(Machine):
         await self._client.close()
         self._client = None
 
+    @property
+    def closed(self) -> bool:
+        """Indicates if the connection to the server is closed or not."""
+        return self._client is None or self._client.closed
+
     async def get_disks(self, include_temperature: bool = False) -> List[CachingDisk]:
         """Returns a list of disks attached to the host."""
         return await self._disk_fetcher.get_disks(
