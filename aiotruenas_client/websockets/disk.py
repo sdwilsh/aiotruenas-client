@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional, TypeVar
 
 from ..disk import Disk, DiskType
-from .interfaces import WebsocketMachine
+from .interfaces import StateFetcher, WebsocketMachine
 
 TCachingDiskStateFetcher = TypeVar(
     "TCachingDiskStateFetcher", bound="CachingDiskStateFetcher"
@@ -73,7 +73,7 @@ class CachingDisk(Disk):
         return self._fetcher._get_cached_state(self)
 
 
-class CachingDiskStateFetcher(object):
+class CachingDiskStateFetcher(StateFetcher):
     _parent: WebsocketMachine
     _state: Dict[str, Dict[str, Any]]
     _cached_disks: List[CachingDisk]
@@ -83,6 +83,14 @@ class CachingDiskStateFetcher(object):
         self._parent = machine
         self._state = {}
         self._cached_disks = []
+
+    @classmethod
+    async def create(
+        cls,
+        machine: WebsocketMachine,
+    ) -> TCachingDiskStateFetcher:
+        cdsf = CachingDiskStateFetcher(machine=machine)
+        return cdsf
 
     async def get_disks(self, include_temperature: bool = False) -> List[CachingDisk]:
         """Returns a list of disks attached to the host."""

@@ -69,6 +69,14 @@ class CachingVirtualMachineStateFetcher(object):
         self._state = {}
         self._cached_vms = []
 
+    @classmethod
+    async def create(
+        cls,
+        machine: WebsocketMachine,
+    ) -> TCachingVirtualMachineStateFetcher:
+        cvmsf = CachingVirtualMachineStateFetcher(machine=machine)
+        return cvmsf
+
     async def get_vms(self) -> List[CachingVirtualMachine]:
         """Returns a list of virtual machines on the host."""
         self._state = await self._fetch_vms()
