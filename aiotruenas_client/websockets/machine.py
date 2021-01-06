@@ -2,6 +2,8 @@ import ssl
 from typing import Any, Dict, List, Optional, TypeVar
 
 import websockets
+from aiotruenas_client.job import TJobId
+from aiotruenas_client.websockets.job import CachingJob, CachingJobFetcher
 
 from .disk import CachingDisk, CachingDiskStateFetcher
 from .interfaces import WebsocketMachine
@@ -21,11 +23,13 @@ class CachingMachine(WebsocketMachine):
 
     _client: Optional[TrueNASWebSocketClientProtocol] = None
     _disk_fetcher: CachingDiskStateFetcher
+    _job_fetcher: CachingJobFetcher
     _pool_fetcher: CachingPoolStateFetcher
     _vm_fetcher: CachingVirtualMachineStateFetcher
 
     def __init__(self) -> None:
         self._disk_fetcher = CachingDiskStateFetcher(self)
+        self._job_fetcher = CachingJobFetcher(self)
         self._pool_fetcher = CachingPoolStateFetcher(self)
         self._vm_fetcher = CachingVirtualMachineStateFetcher(self)
         super().__init__()
@@ -97,6 +101,10 @@ class CachingMachine(WebsocketMachine):
     def disks(self) -> List[CachingDisk]:
         """Returns a list of cached disks attached to the host."""
         return self._disk_fetcher.disks
+
+    async def get_job(self, id: TJobId) -> CachingJob:
+        """Get the specified Job from the remote machine."""
+        return await self._job_fetcher.get_job(id=id)
 
     async def get_system_info(self) -> Dict[str, Any]:
         """Get some basic information about the remote machine."""
