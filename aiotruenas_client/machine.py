@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
 from .disk import Disk
+from .job import Job, TJobId
 from .pool import Pool
 from .virtualmachine import VirtualMachine
 
@@ -15,6 +16,10 @@ class Machine(ABC):
     @abstractmethod
     async def get_disks(self, include_temperature: bool) -> List[Disk]:
         """Get the disks on the remote machine."""
+
+    @abstractmethod
+    async def get_job(self, id: TJobId) -> Job:
+        """Get the specified Job from the remote machine."""
 
     @abstractmethod
     async def get_system_info(self) -> Dict[str, Any]:
