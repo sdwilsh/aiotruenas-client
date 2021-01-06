@@ -1,8 +1,8 @@
 from typing import Any, Dict, List, Optional, TypeVar
 
 from ..disk import Disk, DiskType
+from .interfaces import WebsocketMachine
 
-TCachingMachine = TypeVar("TCachingMachine", bound="TCachingMachine")
 TCachingDiskStateFetcher = TypeVar(
     "TCachingDiskStateFetcher", bound="CachingDiskStateFetcher"
 )
@@ -74,12 +74,12 @@ class CachingDisk(Disk):
 
 
 class CachingDiskStateFetcher(object):
-    _parent: TCachingMachine
+    _parent: WebsocketMachine
     _state: Dict[str, Dict[str, Any]]
     _cached_disks: List[CachingDisk]
     _fetch_temperature: bool
 
-    def __init__(self, machine: TCachingMachine) -> None:
+    def __init__(self, machine: WebsocketMachine) -> None:
         self._parent = machine
         self._state = {}
         self._cached_disks = []
@@ -100,8 +100,7 @@ class CachingDiskStateFetcher(object):
         return self._state[disk.serial]
 
     async def _fetch_disks(self) -> Dict[str, Dict[str, Any]]:
-        assert self._parent._client is not None
-        disks = await self._parent._client.invoke_method(
+        disks = await self._parent._invoke_method(
             "disk.query",
             [
                 [],
@@ -119,7 +118,7 @@ class CachingDiskStateFetcher(object):
         )
         disks_by_name = {disk["name"]: disk for disk in disks}
         if len(disks_by_name) > 0 and self._fetch_temperature:
-            temps = await self._parent._client.invoke_method(
+            temps = await self._parent._invoke_method(
                 "disk.temperatures",
                 [
                     [disk for disk in disks_by_name],

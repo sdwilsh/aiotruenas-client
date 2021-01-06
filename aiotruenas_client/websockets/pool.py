@@ -1,8 +1,8 @@
 from typing import Any, Dict, List, TypeVar
 
 from ..pool import Pool, PoolStatus
+from .interfaces import WebsocketMachine
 
-TCachingMachine = TypeVar("TCachingMachine", bound="TCachingMachine")
 TCachingPoolStateFetcher = TypeVar(
     "TCachingPoolStateFetcher", bound="CachingPoolStateFetcher"
 )
@@ -74,11 +74,11 @@ class CachingPool(Pool):
 
 
 class CachingPoolStateFetcher(object):
-    _parent: TCachingMachine
+    _parent: WebsocketMachine
     _state: Dict[str, Dict[str, Any]]
     _cached_pools: List[CachingPool]
 
-    def __init__(self, machine: TCachingMachine) -> None:
+    def __init__(self, machine: WebsocketMachine) -> None:
         self._parent = machine
         self._state = {}
         self._cached_pools = []
@@ -98,8 +98,7 @@ class CachingPoolStateFetcher(object):
         return self._state[pool.guid]
 
     async def _fetch_pools(self) -> Dict[str, Dict[str, Any]]:
-        assert self._parent._client is not None
-        pools = await self._parent._client.invoke_method(
+        pools = await self._parent._invoke_method(
             "pool.query",
             [
                 [],

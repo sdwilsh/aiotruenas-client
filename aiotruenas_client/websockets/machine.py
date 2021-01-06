@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Optional, TypeVar
 
 import websockets
 
-from ..machine import Machine
 from .disk import CachingDisk, CachingDiskStateFetcher
+from .interfaces import WebsocketMachine
 from .pool import CachingPool, CachingPoolStateFetcher
 from .protocol import (
     TrueNASWebSocketClientProtocol,
@@ -16,7 +16,7 @@ from .virtualmachine import CachingVirtualMachine, CachingVirtualMachineStateFet
 TCachingMachine = TypeVar("TCachingMachine", bound="CachingMachine")
 
 
-class CachingMachine(Machine):
+class CachingMachine(WebsocketMachine):
     """A Machine implementation that connects over websockets and keeps fetched information in-sync with the server."""
 
     _client: Optional[TrueNASWebSocketClientProtocol] = None
@@ -76,21 +76,6 @@ class CachingMachine(Machine):
 
         await self._connect(auth_protocol, host, secure)
 
-    async def _connect(self, auth_protocol, host, secure):
-        """Executes connection."""
-        assert self._client is None
-        if not secure:
-            protocol = "ws"
-            context = None
-        else:
-            protocol = "wss"
-            context = ssl.SSLContext()
-        self._client = await websockets.connect(
-            f"{protocol}://{host}/websocket",
-            create_protocol=auth_protocol,
-            ssl=context,
-        )
-
     async def close(self) -> None:
         """Closes the conenction to the server."""
         assert self._client is not None
@@ -135,3 +120,26 @@ class CachingMachine(Machine):
     def vms(self) -> List[CachingVirtualMachine]:
         """Returns a list of cached virtual machines on the host."""
         return self._vm_fetcher.vms
+
+    async def _connect(self, auth_protocol, host, secure):
+        """Executes connection."""
+        assert self._client is None
+        if not secure:
+            protocol = "ws"
+            context = None
+        else:
+            protocol = "wss"
+            context = ssl.SSLContext()
+        self._client = await websockets.connect(
+            f"{protocol}://{host}/websocket",
+            create_protocol=auth_protocol,
+            ssl=context,
+        )
+
+    async def _invoke_method(self, method: str, params: List[Any] = []) -> Any:
+        """Invokes a method and returns its result.
+
+        This should only be used by internal classes to this library.
+        """
+        assert not self.closed
+        return await self._client.invoke_method(method=method, params=params)

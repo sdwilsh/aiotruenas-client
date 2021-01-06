@@ -1,12 +1,15 @@
 from typing import Any, Dict, List, TypeVar
 
 from ..virtualmachine import VirtualMachine, VirtualMachineState
+from .interfaces import WebsocketMachine
 
-TCachingDiskStateFetcher = TypeVar("TCachingDiskStateFetcher", bound="CachingMachine")
+TCachingVirtualMachineStateFetcher = TypeVar(
+    "TCachingVirtualMachineStateFetcher", bound="CachingVirtualMachineStateFetcher"
+)
 
 
 class CachingVirtualMachine(VirtualMachine):
-    def __init__(self, fetcher: TCachingDiskStateFetcher, id: int) -> None:
+    def __init__(self, fetcher: TCachingVirtualMachineStateFetcher, id: int) -> None:
         super().__init__(id=id)
         self._fetcher = fetcher
         self._cached_state = self._state
@@ -57,11 +60,11 @@ class CachingVirtualMachine(VirtualMachine):
 
 
 class CachingVirtualMachineStateFetcher(object):
-    _parent: TCachingDiskStateFetcher
+    _parent: WebsocketMachine
     _state: Dict[str, Dict[str, Any]]
     _cached_vms: List[CachingVirtualMachine]
 
-    def __init__(self, machine: TCachingDiskStateFetcher) -> None:
+    def __init__(self, machine: WebsocketMachine) -> None:
         self._parent = machine
         self._state = {}
         self._cached_vms = []
@@ -78,26 +81,22 @@ class CachingVirtualMachineStateFetcher(object):
         return self._cached_vms
 
     async def _start_vm(self, vm: VirtualMachine, overcommit: bool = False) -> bool:
-        assert self._parent._client is not None
-        return await self._parent._client.invoke_method(
+        return await self._parent._invoke_method(
             "vm.start",
             [vm.id, {"overcommit": overcommit}],
         )
 
     async def _stop_vm(self, vm: VirtualMachine, force: bool = False) -> bool:
-        assert self._parent._client is not None
-        return await self._parent._client.invoke_method("vm.stop", [vm.id, force])
+        return await self._parent._invoke_method("vm.stop", [vm.id, force])
 
     async def _restart_vm(self, vm: VirtualMachine) -> bool:
-        assert self._parent._client is not None
-        return await self._parent._client.invoke_method("vm.restart", [vm.id])
+        return await self._parent._invoke_method("vm.restart", [vm.id])
 
     def _get_cached_state(self, vm: VirtualMachine) -> Dict[str, Any]:
         return self._state[vm.id]
 
     async def _fetch_vms(self) -> Dict[str, Dict[str, Any]]:
-        assert self._parent._client is not None
-        vms = await self._parent._client.invoke_method(
+        vms = await self._parent._invoke_method(
             "vm.query",
             [
                 [],
