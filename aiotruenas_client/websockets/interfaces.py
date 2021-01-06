@@ -1,9 +1,21 @@
-from abc import abstractmethod
+import asyncio
+from abc import ABC, abstractmethod
 from typing import Any, List, Optional, TypeVar
 
 from ..machine import Machine
 
+TStateFetcher = TypeVar("TStateFetcher", bound="StateFetcher")
 TWebsocketMachine = TypeVar("TWebsocketMachine", bound="WebsocketMachine")
+
+
+class StateFetcher(ABC):
+    @classmethod
+    @abstractmethod
+    async def create(
+        cls,
+        machine: TWebsocketMachine,
+    ) -> TStateFetcher:
+        """Factory method to create the state fetcher and setup any subscriptions."""
 
 
 class WebsocketMachine(Machine):

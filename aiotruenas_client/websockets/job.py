@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional, TypeVar
 
 from ..job import Job, JobStatus, TJobId
-from .interfaces import WebsocketMachine
+from .interfaces import StateFetcher, WebsocketMachine
 
 TCachingJobFetcher = TypeVar("TCachingJobFetcher", bound="CachingJobFetcher")
 
@@ -38,7 +38,7 @@ class CachingJob(Job):
         return self._fetcher._get_cached_state(self)
 
 
-class CachingJobFetcher(object):
+class CachingJobFetcher(StateFetcher):
     _parent: WebsocketMachine
     # This is probably not the best approach, as this will grow unbounded over time...
     _state: Dict[TJobId, Dict[str, Any]]
@@ -46,7 +46,15 @@ class CachingJobFetcher(object):
     def __init__(self, machine: WebsocketMachine) -> None:
         self._parent = machine
         self._state = {}
+
+    @classmethod
+    async def create(
+        cls,
+        machine: WebsocketMachine,
+    ) -> TCachingJobFetcher:
+        cjf = CachingJobFetcher(machine=machine)
         # TODO: subscribe to core.get_jobs so we get data real-time
+        return cjf
 
     async def get_job(self, id: TJobId) -> CachingJob:
         if id not in self._state:

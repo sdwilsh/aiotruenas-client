@@ -27,13 +27,6 @@ class CachingMachine(WebsocketMachine):
     _pool_fetcher: CachingPoolStateFetcher
     _vm_fetcher: CachingVirtualMachineStateFetcher
 
-    def __init__(self) -> None:
-        self._disk_fetcher = CachingDiskStateFetcher(self)
-        self._job_fetcher = CachingJobFetcher(self)
-        self._pool_fetcher = CachingPoolStateFetcher(self)
-        self._vm_fetcher = CachingVirtualMachineStateFetcher(self)
-        super().__init__()
-
     @classmethod
     async def create(
         cls,
@@ -51,6 +44,11 @@ class CachingMachine(WebsocketMachine):
             username=username,
             secure=secure,
         )
+        m._job_fetcher = await CachingJobFetcher.create(machine=m)
+
+        m._disk_fetcher = await CachingDiskStateFetcher.create(machine=m)
+        m._pool_fetcher = await CachingPoolStateFetcher.create(machine=m)
+        m._vm_fetcher = await CachingVirtualMachineStateFetcher.create(machine=m)
         return m
 
     async def connect(

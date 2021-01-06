@@ -83,6 +83,14 @@ class CachingPoolStateFetcher(object):
         self._state = {}
         self._cached_pools = []
 
+    @classmethod
+    async def create(
+        cls,
+        machine: WebsocketMachine,
+    ) -> TCachingPoolStateFetcher:
+        cpsf = CachingPoolStateFetcher(machine=machine)
+        return cpsf
+
     async def get_pools(self) -> List[CachingPool]:
         """Returns a list of pools known to the host."""
         self._state = await self._fetch_pools()
