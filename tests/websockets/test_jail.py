@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import unittest
 from unittest import IsolatedAsyncioTestCase
 
@@ -133,8 +134,39 @@ class TestJail(IsolatedAsyncioTestCase):
         )
 
         def start_handler(name) -> int:
+            JOB_ID = 42
             self.assertEqual(name, NAME)
-            return 42
+            self._server.send_subscription_data(
+                {
+                    "msg": "changed",
+                    "collection": "core.get_jobs",
+                    "id": JOB_ID,
+                    "fields": {
+                        "id": JOB_ID,
+                        "method": "jail.start",
+                        "arguments": [NAME],
+                        "logs_path": None,
+                        "logs_excerpt": None,
+                        "progress": {
+                            "percent": 100,
+                            "description": None,
+                            "extra": None,
+                        },
+                        "result": True,
+                        "error": None,
+                        "exception": None,
+                        "exc_info": None,
+                        "state": "SUCCESS",
+                        "time_started": datetime.datetime(
+                            2021, 1, 7, 21, 30, 0, tzinfo=datetime.timezone.utc
+                        ),
+                        "time_finished": datetime.datetime(
+                            2021, 1, 7, 21, 30, 1, tzinfo=datetime.timezone.utc
+                        ),
+                    },
+                },
+            ),
+            return JOB_ID
 
         self._server.register_method_handler(
             "jail.start",
@@ -143,8 +175,7 @@ class TestJail(IsolatedAsyncioTestCase):
         await self._machine.get_jails()
         jail = self._machine.jails[0]
 
-        # TODO: subscribe to core.get_jobs, and this should return bool
-        self.assertEqual(await jail.start(), None)
+        self.assertTrue(await jail.start())
 
     async def test_stop(self) -> None:
         NAME = "jail01"
@@ -174,9 +205,40 @@ class TestJail(IsolatedAsyncioTestCase):
         )
 
         def stop_handler(name, force) -> int:
+            JOB_ID = 42
             self.assertEqual(name, NAME)
             self.assertFalse(force)
-            return 42
+            self._server.send_subscription_data(
+                {
+                    "msg": "changed",
+                    "collection": "core.get_jobs",
+                    "id": JOB_ID,
+                    "fields": {
+                        "id": JOB_ID,
+                        "method": "jail.stop",
+                        "arguments": [NAME],
+                        "logs_path": None,
+                        "logs_excerpt": None,
+                        "progress": {
+                            "percent": 100,
+                            "description": None,
+                            "extra": None,
+                        },
+                        "result": None,  # For some reason, TrueNAS has a null result for this...
+                        "error": None,
+                        "exception": None,
+                        "exc_info": None,
+                        "state": "SUCCESS",
+                        "time_started": datetime.datetime(
+                            2021, 1, 7, 21, 30, 0, tzinfo=datetime.timezone.utc
+                        ),
+                        "time_finished": datetime.datetime(
+                            2021, 1, 7, 21, 30, 1, tzinfo=datetime.timezone.utc
+                        ),
+                    },
+                },
+            )
+            return JOB_ID
 
         self._server.register_method_handler(
             "jail.stop",
@@ -185,8 +247,7 @@ class TestJail(IsolatedAsyncioTestCase):
         await self._machine.get_jails()
         jail = self._machine.jails[0]
 
-        # TODO: subscribe to core.get_jobs, and this should return bool
-        self.assertEqual(await jail.stop(), None)
+        self.assertTrue(await jail.stop())
 
     async def test_restart(self) -> None:
         NAME = "jail01"
@@ -216,8 +277,39 @@ class TestJail(IsolatedAsyncioTestCase):
         )
 
         def restart_handler(name) -> int:
+            JOB_ID = 42
             self.assertEqual(name, NAME)
-            return 42
+            self._server.send_subscription_data(
+                {
+                    "msg": "changed",
+                    "collection": "core.get_jobs",
+                    "id": JOB_ID,
+                    "fields": {
+                        "id": JOB_ID,
+                        "method": "jail.start",
+                        "arguments": [NAME],
+                        "logs_path": None,
+                        "logs_excerpt": None,
+                        "progress": {
+                            "percent": 100,
+                            "description": None,
+                            "extra": None,
+                        },
+                        "result": True,
+                        "error": None,
+                        "exception": None,
+                        "exc_info": None,
+                        "state": "SUCCESS",
+                        "time_started": datetime.datetime(
+                            2021, 1, 7, 21, 30, 0, tzinfo=datetime.timezone.utc
+                        ),
+                        "time_finished": datetime.datetime(
+                            2021, 1, 7, 21, 30, 1, tzinfo=datetime.timezone.utc
+                        ),
+                    },
+                },
+            ),
+            return JOB_ID
 
         self._server.register_method_handler(
             "jail.restart",
@@ -226,8 +318,7 @@ class TestJail(IsolatedAsyncioTestCase):
         await self._machine.get_jails()
         jail = self._machine.jails[0]
 
-        # TODO: subscribe to core.get_jobs, and this should return bool
-        self.assertEqual(await jail.restart(), None)
+        self.assertTrue(await jail.restart())
 
     def test_eq_impl(self) -> None:
         self._machine._jail_fetcher._state = {"jail01": {"id": "jail01", "state": "up"}}

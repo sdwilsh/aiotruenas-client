@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, TypeVar
 
+from aiotruenas_client.job import JobStatus
+
 from ..jail import Jail, JailStatus
 from .interfaces import StateFetcher, WebsocketMachine
 
@@ -14,15 +16,15 @@ class CachingJail(Jail):
         self._fetcher = fetcher
         self._cached_state = self._state
 
-    async def start(self) -> None:
+    async def start(self) -> bool:
         """Starts a stopped jail."""
         return await self._fetcher._start_jail(self)
 
-    async def stop(self, force: bool = False) -> None:
+    async def stop(self, force: bool = False) -> bool:
         """Stops a running jail."""
         return await self._fetcher._stop_jail(self, force)
 
-    async def restart(self) -> None:
+    async def restart(self) -> bool:
         """Restarts a running jail."""
         return await self._fetcher._restart_jail(self)
 
@@ -72,7 +74,7 @@ class CachingJailStateFetcher(StateFetcher):
         """Returns a list of jails on the host."""
         return self._cached_jails
 
-    async def _start_jail(self, jail: Jail) -> None:
+    async def _start_jail(self, jail: Jail) -> bool:
         if jail.status != JailStatus.DOWN:
             raise RuntimeError(f"Jail {jail.name} is already running.")
 
@@ -80,27 +82,30 @@ class CachingJailStateFetcher(StateFetcher):
             "jail.start",
             [jail.name],
         )
-        # TODO: subscribe to core.get_jobs, and wait for completion/error
-        # See https://www.truenas.com/docs/hub/additional-topics/api/websocket_api.html#jobs
-        return None
+        job = await self._parent.wait_for_job(id=job_id)
+        if job.result:
+            self._state[jail.name]["state"] = JailStatus.UP.value
+        return job.result_or_raise_error
 
-    async def _stop_jail(self, jail: Jail, force: bool = False) -> None:
+    async def _stop_jail(self, jail: Jail, force: bool = False) -> bool:
         if jail.status != JailStatus.UP:
             raise RuntimeError(f"Jail {jail.name} is not running.")
 
         job_id = await self._parent._invoke_method("jail.stop", [jail.name, force])
-        # TODO: subscribe to core.get_jobs, and wait for completion/error
-        # See https://www.truenas.com/docs/hub/additional-topics/api/websocket_api.html#jobs
-        return None
+        job = await self._parent.wait_for_job(id=job_id)
+        if job.result:
+            self._state[jail.name]["state"] = JailStatus.DOWN.value
+        # Stop seems to return `None`, so check for that if we are not throwing.
+        return job.result_or_raise_error == None
 
-    async def _restart_jail(self, jail: Jail) -> None:
+    async def _restart_jail(self, jail: Jail) -> bool:
         if jail.status != JailStatus.UP:
             raise RuntimeError(f"Jail {jail.name} is not running.")
 
         job_id = await self._parent._invoke_method("jail.restart", [jail.name])
-        # TODO: subscribe to core.get_jobs, and wait for completion/error
-        # See https://www.truenas.com/docs/hub/additional-topics/api/websocket_api.html#jobs
-        return None
+        job = await self._parent.wait_for_job(id=job_id)
+        # TODO: update cached state
+        return job.result_or_raise_error
 
     def _get_cached_state(self, jail: Jail) -> Dict[str, Any]:
         return self._state[jail.name]
