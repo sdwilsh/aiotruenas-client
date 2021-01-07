@@ -100,6 +100,7 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
         return recv["result"]
 
     async def subscribe(self, name: str) -> asyncio.Queue:
+        assert name not in self._subscription_data, f"Already subscribed to {name}!"
         id = str(uuid.uuid4())
         sub_future = asyncio.get_event_loop().create_future()
         self._pending_subscription_data[id] = PendingSubscriptionData(name, sub_future)
@@ -113,6 +114,22 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
             )
         )
         return await sub_future
+
+    async def unsubscribe(
+        self,
+        name: str,
+    ) -> None:
+        assert name in self._subscription_data, f"Not currently subscribed to {name}!"
+        id = self._subscription_data[name].id
+        await super().send(
+            ejson.dumps(
+                {
+                    "id": id,
+                    "msg": "unsub",
+                }
+            )
+        )
+        del self._subscription_data[name]
 
     @abstractmethod
     async def _authenticate(self) -> Any:

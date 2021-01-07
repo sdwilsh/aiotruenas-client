@@ -115,6 +115,19 @@ class TrueNASServer(object):
                     }
                 )
                 continue
+            if data["msg"] == "sub":
+                # Automatically say it's working for tests.
+                await send(
+                    {
+                        "msg": "ready",
+                        "subs": [data["id"]],
+                    }
+                )
+                continue
+            if data["msg"] == "unsub":
+                # Nothing to respond with in this case.
+                continue
+
             await fail()
 
 

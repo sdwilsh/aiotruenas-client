@@ -2,9 +2,11 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, TypeVar
 
+from ..job import Job
 from ..machine import Machine
 
 TStateFetcher = TypeVar("TStateFetcher", bound="StateFetcher")
+TSubscriber = TypeVar("TSubscriber", bound="Subscriber")
 TWebsocketMachine = TypeVar("TWebsocketMachine", bound="WebsocketMachine")
 
 
@@ -65,3 +67,23 @@ class WebsocketMachine(Machine):
 
         This should only be used by internal classes to this library.
         """
+
+    @abstractmethod
+    async def _subscribe(self, subscriber: TSubscriber, name: str) -> asyncio.Queue:
+        """Subscribes to a topic and populates a `Queue` of data from it.
+
+        This should only be used by internal classes to this library.
+        """
+
+    @abstractmethod
+    async def _unsubscribe(self, subscriber: TSubscriber, name: str) -> None:
+        """Unsubscribes from a topic.
+
+        This should only be used by internal classes to this library.
+        """
+
+
+class Subscriber(ABC):
+    @abstractmethod
+    async def unsubscribe(self) -> None:
+        """Called when the connection is closing and the class needs to unsubscribe."""
