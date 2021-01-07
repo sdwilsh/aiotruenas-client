@@ -130,6 +130,10 @@ class CachingMachine(WebsocketMachine):
         """Get the specified Job from the remote machine."""
         return await self._job_fetcher.get_job(id=id)
 
+    async def wait_for_job(self, id: TJobId) -> CachingJob:
+        """Wait for the specified Job from the remote machine to complete, and return it."""
+        return await self._job_fetcher.wait_for_job(id=id)
+
     async def get_system_info(self) -> Dict[str, Any]:
         """Get some basic information about the remote machine."""
         assert self._client is not None

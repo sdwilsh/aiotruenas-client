@@ -3,7 +3,7 @@ import datetime
 import random
 import string
 import uuid
-from typing import Any, Callable, Dict, List, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 
 import ejson
 
@@ -25,6 +25,10 @@ class TrueNASServer(object):
     _password: str
     _api_key: str
     _serve_handle: websockets.serve
+    # Mapping of topic to subscription id
+    _subscriptions: Dict[str, str] = {}
+    _subscription_queue: asyncio.Queue
+    _subscription_task: Optional[asyncio.Task] = None
 
     _method_handlers: Dict[str, TMethodHandler]
 
@@ -44,6 +48,8 @@ class TrueNASServer(object):
             lambda t: t == self.api_key,
         )
 
+        self._subscription_queue = asyncio.Queue()
+
         self._serve_handle = websockets.serve(self._handle_messages, "localhost", 8000)
         asyncio.get_event_loop().run_until_complete(self._serve_handle)
 
@@ -57,9 +63,16 @@ class TrueNASServer(object):
         """Shuts down the fake server."""
         if self._serve_handle is None:
             return
+        if self._subscription_task:
+            self._subscription_task.cancel()
+            self._subscription_task = None
         self._serve_handle.ws_server.close()
         await self._serve_handle.ws_server.wait_closed()
         self._serve_handle = None
+
+    def send_subscription_data(self, data: object) -> None:
+        """Sends a message to any listenting subscriptions."""
+        self._subscription_queue.put_nowait(data)
 
     @property
     def username(self) -> str:
@@ -86,6 +99,12 @@ class TrueNASServer(object):
     ):
         async def send(data: object) -> None:
             await websocket.send(ejson.dumps(data))
+
+        self._subscription_task = asyncio.create_task(
+            self._send_subscription_messages(
+                send=send,
+            )
+        )
 
         async def fail():
             await send(
@@ -116,7 +135,7 @@ class TrueNASServer(object):
                 )
                 continue
             if data["msg"] == "sub":
-                # Automatically say it's working for tests.
+                self._subscriptions[data["name"]] = data["id"]
                 await send(
                     {
                         "msg": "ready",
@@ -125,10 +144,23 @@ class TrueNASServer(object):
                 )
                 continue
             if data["msg"] == "unsub":
+                topic = [
+                    topic
+                    for topic, id in self._subscriptions.items()
+                    if id == data["id"]
+                ][0]
+                del self._subscriptions[topic]
                 # Nothing to respond with in this case.
                 continue
 
             await fail()
+
+    async def _send_subscription_messages(self, send: Callable[[object], None]) -> None:
+        queue = self._subscription_queue
+        while True:
+            item = await queue.get()
+            await send(item)
+            queue.task_done()
 
 
 class CommonQueries:

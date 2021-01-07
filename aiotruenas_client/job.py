@@ -25,6 +25,10 @@ class JobStatus(Enum):
             return cls.WAITING
         raise AssertionError(f"Unexpected job state '{value}'")
 
+    @classmethod
+    def is_completed(cls, job_status: TJobStatus) -> bool:
+        return job_status == cls.FAILED or job_status == cls.SUCCESS
+
 
 class Job(ABC):
     def __init__(
@@ -54,6 +58,13 @@ class Job(ABC):
     @abstractmethod
     def result(self) -> Optional[Any]:
         """The result of the job."""
+
+    @property
+    def result_or_raise_error(self) -> Any:
+        assert JobStatus.is_completed(self.status)
+        if self.error is not None:
+            raise RuntimeError(self.error)
+        return self.result
 
     @property
     @abstractmethod

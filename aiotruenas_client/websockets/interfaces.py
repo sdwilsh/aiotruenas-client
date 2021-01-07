@@ -2,7 +2,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, TypeVar
 
-from ..job import Job
+from ..job import Job, TJobId
 from ..machine import Machine
 
 TStateFetcher = TypeVar("TStateFetcher", bound="StateFetcher")
@@ -60,6 +60,10 @@ class WebsocketMachine(Machine):
     @abstractmethod
     def closed(self) -> bool:
         """If the connection to the server is closed or not."""
+
+    @abstractmethod
+    async def wait_for_job(self, id: TJobId) -> Job:
+        """Wait for the specified Job from the remote machine to complete, and return it."""
 
     @abstractmethod
     async def _invoke_method(self, method: str, params: List[Any] = []) -> Any:

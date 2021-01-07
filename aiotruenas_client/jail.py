@@ -26,15 +26,15 @@ class Jail(ABC):
         self._name = name
 
     @abstractmethod
-    async def start(self, overcommit: bool = False) -> None:
+    async def start(self, overcommit: bool = False) -> bool:
         """Starts a stopped jail."""
 
     @abstractmethod
-    async def stop(self, force: bool = False) -> None:
+    async def stop(self, force: bool = False) -> bool:
         """Stops a running jail."""
 
     @abstractmethod
-    async def restart(self) -> None:
+    async def restart(self) -> bool:
         """Restarts a running jail."""
 
     @property
