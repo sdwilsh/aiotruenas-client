@@ -1,3 +1,5 @@
+import asyncio
+import logging
 import ssl
 from typing import Any, Dict, List, Optional, TypeVar
 
@@ -7,7 +9,7 @@ from aiotruenas_client.websockets.jail import CachingJail, CachingJailStateFetch
 from aiotruenas_client.websockets.job import CachingJob, CachingJobFetcher
 
 from .disk import CachingDisk, CachingDiskStateFetcher
-from .interfaces import WebsocketMachine
+from .interfaces import Subscriber, WebsocketMachine
 from .pool import CachingPool, CachingPoolStateFetcher
 from .protocol import (
     TrueNASWebSocketClientProtocol,
@@ -18,11 +20,15 @@ from .virtualmachine import CachingVirtualMachine, CachingVirtualMachineStateFet
 
 TCachingMachine = TypeVar("TCachingMachine", bound="CachingMachine")
 
+logger = logging.getLogger(__name__)
+
 
 class CachingMachine(WebsocketMachine):
     """A Machine implementation that connects over websockets and keeps fetched information in-sync with the server."""
 
     _client: Optional[TrueNASWebSocketClientProtocol] = None
+    _subscribers: List[Subscriber] = []
+
     _disk_fetcher: CachingDiskStateFetcher
     _jail_fetcher: CachingJailStateFetcher
     _job_fetcher: CachingJobFetcher
@@ -84,6 +90,14 @@ class CachingMachine(WebsocketMachine):
     async def close(self) -> None:
         """Closes the conenction to the server."""
         assert self._client is not None
+        for subscriber in self._subscribers:
+            try:
+                await subscriber.unsubscribe()
+            except Exception as exc:
+                logger.exception(
+                    "Caught exception while closing connection.",
+                    exc_info=exc,
+                )
         await self._client.close()
         self._client = None
 
@@ -161,3 +175,22 @@ class CachingMachine(WebsocketMachine):
         """
         assert not self.closed
         return await self._client.invoke_method(method=method, params=params)
+
+    async def _subscribe(self, subscriber: Subscriber, name: str) -> asyncio.Queue:
+        """Subscribes to a topic and populates a `Queue` of data from it.
+
+        This should only be used by internal classes to this library.
+        """
+        assert not self.closed
+        queue = await self._client.subscribe(name=name)
+        self._subscribers.append(subscriber)
+        return queue
+
+    async def _unsubscribe(self, subscriber: Subscriber, name: str) -> None:
+        """Unsubscribes from a topic.
+
+        This should only be used by internal classes to this library.
+        """
+        assert not self.closed
+        await self._client.unsubscribe(name)
+        self._subscribers.remove(subscriber)
