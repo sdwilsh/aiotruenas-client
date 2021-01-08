@@ -241,7 +241,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
 
     def test_eq_impl(self) -> None:
         self._machine._vm_fetcher._state = {
-            42: {
+            "42": {
                 "description": "",
                 "id": 42,
                 "name": "somename",

@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import ssl
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import websockets
 from aiotruenas_client.job import TJobId
@@ -80,7 +80,7 @@ class CachingMachine(WebsocketMachine):
 
         if api_key:
             auth_protocol = truenas_api_key_auth_protocol_factory(api_key)
-        elif password:
+        elif username and password:
             auth_protocol = truenas_password_auth_protocol_factory(username, password)
         else:
             raise AssertionError
@@ -166,10 +166,13 @@ class CachingMachine(WebsocketMachine):
         else:
             protocol = "wss"
             context = ssl.SSLContext()
-        self._client = await websockets.connect(
-            f"{protocol}://{host}/websocket",
-            create_protocol=auth_protocol,
-            ssl=context,
+        self._client = cast(
+            TrueNASWebSocketClientProtocol,
+            await websockets.connect(
+                f"{protocol}://{host}/websocket",
+                create_protocol=auth_protocol,
+                ssl=context,
+            ),
         )
 
     async def _invoke_method(self, method: str, params: List[Any] = []) -> Any:

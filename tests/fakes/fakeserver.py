@@ -5,13 +5,16 @@ import datetime
 import random
 import string
 import uuid
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
 
 import ejson
 
 import websockets
 
-TMethodHandler = Callable[[List[Any]], Any]
+TMethodHandler = Union[
+    Callable[[Any], Any],
+    Callable[[Any, Any], Any],
+]
 
 TDiskQueryResult = List[Dict[str, Union[str, int]]]
 TDiskTemperaturesResult = Dict[str, int]
@@ -24,7 +27,7 @@ class TrueNASServer(object):
     _username: str
     _password: str
     _api_key: str
-    _serve_handle: websockets.serve
+    _serve_handle: Optional[websockets.serve]
     # Mapping of topic to subscription id
     _subscriptions: Dict[str, str] = {}
     _subscription_queue: asyncio.Queue
@@ -155,7 +158,9 @@ class TrueNASServer(object):
 
             await fail()
 
-    async def _send_subscription_messages(self, send: Callable[[object], None]) -> None:
+    async def _send_subscription_messages(
+        self, send: Callable[[object], Coroutine[None]]
+    ) -> None:
         queue = self._subscription_queue
         while True:
             item = await queue.get()

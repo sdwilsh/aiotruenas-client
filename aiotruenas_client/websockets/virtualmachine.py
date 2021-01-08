@@ -27,7 +27,7 @@ class CachingVirtualMachine(VirtualMachine):
     @property
     def available(self) -> bool:
         """If the virtual machine exists on the server."""
-        return self._id in self._fetcher._state
+        return str(self._id) in self._fetcher._state
 
     @property
     def description(self) -> str:
@@ -82,7 +82,7 @@ class CachingVirtualMachineStateFetcher(object):
         return self.vms
 
     @property
-    def vms(self) -> List[VirtualMachine]:
+    def vms(self) -> List[CachingVirtualMachine]:
         """Returns a list of virtual machines on the host."""
         return self._cached_vms
 
@@ -99,7 +99,7 @@ class CachingVirtualMachineStateFetcher(object):
         return await self._parent._invoke_method("vm.restart", [vm.id])
 
     def _get_cached_state(self, vm: VirtualMachine) -> Dict[str, Any]:
-        return self._state[vm.id]
+        return self._state[str(vm.id)]
 
     async def _fetch_vms(self) -> Dict[str, Dict[str, Any]]:
         vms = await self._parent._invoke_method(
@@ -116,12 +116,15 @@ class CachingVirtualMachineStateFetcher(object):
                 },
             ],
         )
-        return {vm["id"]: vm for vm in vms}
+        return {str(vm["id"]): vm for vm in vms}
 
     def _update_properties_from_state(self) -> None:
-        available_vms_by_id = {vm.id: vm for vm in self._cached_vms if vm.available}
+        available_vms_by_id = {
+            str(vm.id): vm for vm in self._cached_vms if vm.available
+        }
         current_vm_ids = {vm_id for vm_id in self._state}
         vm_ids_to_add = current_vm_ids - set(available_vms_by_id)
         self._cached_vms = [*available_vms_by_id.values()] + [
-            CachingVirtualMachine(fetcher=self, id=vm_id) for vm_id in vm_ids_to_add
+            CachingVirtualMachine(fetcher=self, id=int(vm_id))
+            for vm_id in vm_ids_to_add
         ]
