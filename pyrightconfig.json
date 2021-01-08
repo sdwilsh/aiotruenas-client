@@ -1,0 +1,11 @@
+{
+    "include": [
+        "aiotruenas_client",
+        "scripts",
+        "tests"
+    ],
+    "exclude": [
+        "**/__pycache__"
+    ],
+    "typeCheckingMode": "basic"
+}
