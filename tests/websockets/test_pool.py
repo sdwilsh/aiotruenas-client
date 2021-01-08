@@ -164,13 +164,13 @@ class TestPool(IsolatedAsyncioTestCase):
 
     def test_eq_impl(self) -> None:
         self._machine._pool_fetcher._state = {
-            200: {
+            "200": {
                 "guid": 200,
                 "name": "test_pool",
             }
         }
-        a = CachingPool(self._machine._pool_fetcher, 200)
-        b = CachingPool(self._machine._pool_fetcher, 200)
+        a = CachingPool(self._machine._pool_fetcher, "200")
+        b = CachingPool(self._machine._pool_fetcher, "200")
         self.assertEqual(a, b)
 
 
