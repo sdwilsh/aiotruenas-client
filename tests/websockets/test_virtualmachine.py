@@ -1,6 +1,9 @@
+import datetime
 import unittest
+from typing import Dict
 from unittest import IsolatedAsyncioTestCase
 
+from aiotruenas_client.job import TJobId
 from aiotruenas_client.virtualmachine import VirtualMachineState
 from aiotruenas_client.websockets import CachingMachine
 from aiotruenas_client.websockets.virtualmachine import CachingVirtualMachine
@@ -196,14 +199,49 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
             ],
         )
 
-        def stop_handler(id, force) -> bool:
+        def stop_handler(id, options: Dict[str, bool]) -> TJobId:
+            JOB_ID = 42
             self.assertEqual(id, ID)
-            self.assertFalse(force)
-            return True
+            self.assertFalse(options["force_after_timeout"])
+            self._server.send_subscription_data(
+                {
+                    "msg": "changed",
+                    "collection": "core.get_jobs",
+                    "id": JOB_ID,
+                    "fields": {
+                        "id": JOB_ID,
+                        "method": "vm.stop",
+                        "arguments": [ID, {"force_after_timeout": False}],
+                        "logs_path": None,
+                        "logs_excerpt": None,
+                        "progress": {
+                            "percent": 100,
+                            "description": None,
+                            "extra": None,
+                        },
+                        "result": None,
+                        "error": None,
+                        "exception": None,
+                        "exc_info": None,
+                        "state": "SUCCESS",
+                        "time_started": datetime.datetime(
+                            2021, 1, 8, 21, 30, 0, tzinfo=datetime.timezone.utc
+                        ),
+                        "time_finished": datetime.datetime(
+                            2021, 1, 8, 21, 30, 1, tzinfo=datetime.timezone.utc
+                        ),
+                    },
+                }
+            )
+            return JOB_ID
 
         self._server.register_method_handler(
             "vm.stop",
             stop_handler,
+        )
+        self._server.register_method_handler(
+            "vm.status",
+            lambda id: {"state": "STOPPED", "pid": 42, "domain_state": "STOPPED"},
         )
         await self._machine.get_vms()
         vm = self._machine.vms[0]
@@ -225,13 +263,48 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
             ],
         )
 
-        def restart_handler(id) -> bool:
+        def restart_handler(id) -> TJobId:
+            JOB_ID = 42
             self.assertEqual(id, ID)
-            return True
+            self._server.send_subscription_data(
+                {
+                    "msg": "changed",
+                    "collection": "core.get_jobs",
+                    "id": JOB_ID,
+                    "fields": {
+                        "id": JOB_ID,
+                        "method": "vm.restart",
+                        "arguments": [ID],
+                        "logs_path": None,
+                        "logs_excerpt": None,
+                        "progress": {
+                            "percent": 100,
+                            "description": None,
+                            "extra": None,
+                        },
+                        "result": None,
+                        "error": None,
+                        "exception": None,
+                        "exc_info": None,
+                        "state": "SUCCESS",
+                        "time_started": datetime.datetime(
+                            2021, 1, 8, 21, 30, 0, tzinfo=datetime.timezone.utc
+                        ),
+                        "time_finished": datetime.datetime(
+                            2021, 1, 8, 21, 30, 1, tzinfo=datetime.timezone.utc
+                        ),
+                    },
+                }
+            )
+            return JOB_ID
 
         self._server.register_method_handler(
             "vm.restart",
             restart_handler,
+        )
+        self._server.register_method_handler(
+            "vm.status",
+            lambda id: {"state": "RUNNING", "pid": 42, "domain_state": "RUNNING"},
         )
         await self._machine.get_vms()
         vm = self._machine.vms[0]
