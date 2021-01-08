@@ -13,5 +13,7 @@
     "editor.formatOnSave": true,
     "python.testing.pytestArgs": [
         "tests"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticMode": "workspace"
 }
