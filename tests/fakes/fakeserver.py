@@ -1,15 +1,15 @@
+from __future__ import annotations
+
 import asyncio
 import datetime
 import random
 import string
 import uuid
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import ejson
 
 import websockets
-
-TServer = TypeVar("TServer", bound="TrueNASServer")
 
 TMethodHandler = Callable[[List[Any]], Any]
 

@@ -1,13 +1,11 @@
+from __future__ import annotations
+
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, TypeVar
+from typing import Any, List, Optional
 
 from ..job import Job, TJobId
 from ..machine import Machine
-
-TStateFetcher = TypeVar("TStateFetcher", bound="StateFetcher")
-TSubscriber = TypeVar("TSubscriber", bound="Subscriber")
-TWebsocketMachine = TypeVar("TWebsocketMachine", bound="WebsocketMachine")
 
 
 class StateFetcher(ABC):
@@ -15,13 +13,13 @@ class StateFetcher(ABC):
     @abstractmethod
     async def create(
         cls,
-        machine: TWebsocketMachine,
-    ) -> TStateFetcher:
+        machine: WebsocketMachine,
+    ) -> StateFetcher:
         """Factory method to create the state fetcher and setup any subscriptions."""
 
 
 class WebsocketMachine(Machine):
-    @staticmethod
+    @classmethod
     @abstractmethod
     async def create(
         cls,
@@ -30,7 +28,7 @@ class WebsocketMachine(Machine):
         password: Optional[str] = None,
         username: Optional[str] = None,
         secure: bool = True,
-    ) -> TWebsocketMachine:
+    ) -> WebsocketMachine:
         """Factory method to create a Websocket-based Machine class.
 
         This method will automatically connect to the remote machine.
@@ -73,14 +71,14 @@ class WebsocketMachine(Machine):
         """
 
     @abstractmethod
-    async def _subscribe(self, subscriber: TSubscriber, name: str) -> asyncio.Queue:
+    async def _subscribe(self, subscriber: Subscriber, name: str) -> asyncio.Queue:
         """Subscribes to a topic and populates a `Queue` of data from it.
 
         This should only be used by internal classes to this library.
         """
 
     @abstractmethod
-    async def _unsubscribe(self, subscriber: TSubscriber, name: str) -> None:
+    async def _unsubscribe(self, subscriber: Subscriber, name: str) -> None:
         """Unsubscribes from a topic.
 
         This should only be used by internal classes to this library.

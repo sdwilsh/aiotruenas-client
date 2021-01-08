@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 import asyncio
 import logging
-from typing import Any, Dict, Optional, TypeVar
+from typing import Any, Dict, Optional
 
 from ..job import Job, JobStatus, TJobId
 from .interfaces import StateFetcher, Subscriber, WebsocketMachine
-
-TCachingJobFetcher = TypeVar("TCachingJobFetcher", bound="CachingJobFetcher")
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class CachingJob(Job):
     def __init__(
         self,
-        fetcher: TCachingJobFetcher,
+        fetcher: CachingJobFetcher,
         id: TJobId,
         method: str,
     ) -> None:
@@ -57,7 +57,7 @@ class CachingJobFetcher(StateFetcher, Subscriber):
     async def create(
         cls,
         machine: WebsocketMachine,
-    ) -> TCachingJobFetcher:
+    ) -> CachingJobFetcher:
         cjf = CachingJobFetcher(machine=machine)
         queue = await machine._subscribe(cjf, "core.get_jobs")
         cjf._subscription_task = asyncio.create_task(

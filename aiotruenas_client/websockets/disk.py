@@ -1,15 +1,13 @@
-from typing import Any, Dict, List, Optional, TypeVar
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional
 
 from ..disk import Disk, DiskType
 from .interfaces import StateFetcher, WebsocketMachine
 
-TCachingDiskStateFetcher = TypeVar(
-    "TCachingDiskStateFetcher", bound="CachingDiskStateFetcher"
-)
-
 
 class CachingDisk(Disk):
-    def __init__(self, fetcher: TCachingDiskStateFetcher, serial: str) -> None:
+    def __init__(self, fetcher: CachingDiskStateFetcher, serial: str) -> None:
         super().__init__(serial=serial)
         self._fetcher = fetcher
         self._cached_state = self._state
@@ -88,7 +86,7 @@ class CachingDiskStateFetcher(StateFetcher):
     async def create(
         cls,
         machine: WebsocketMachine,
-    ) -> TCachingDiskStateFetcher:
+    ) -> CachingDiskStateFetcher:
         cdsf = CachingDiskStateFetcher(machine=machine)
         return cdsf
 
