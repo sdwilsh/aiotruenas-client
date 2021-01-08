@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum, unique
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional
 
 TJobId = int
-TJobStatus = TypeVar("TJobStatus", bound="JobStatus")
 
 
 @unique
@@ -14,7 +15,7 @@ class JobStatus(Enum):
     WAITING = "WAITING"
 
     @classmethod
-    def fromValue(cls, value: str) -> TJobStatus:
+    def fromValue(cls, value: str) -> JobStatus:
         if value == cls.FAILED.value:
             return cls.FAILED
         if value == cls.RUNNING.value:
@@ -26,7 +27,7 @@ class JobStatus(Enum):
         raise AssertionError(f"Unexpected job state '{value}'")
 
     @classmethod
-    def is_completed(cls, job_status: TJobStatus) -> bool:
+    def is_completed(cls, job_status: JobStatus) -> bool:
         return job_status == cls.FAILED or job_status == cls.SUCCESS
 
 

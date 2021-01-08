@@ -1,15 +1,13 @@
-from typing import Any, Dict, List, TypeVar
+from __future__ import annotations
+
+from typing import Any, Dict, List
 
 from ..pool import Pool, PoolStatus
 from .interfaces import WebsocketMachine
 
-TCachingPoolStateFetcher = TypeVar(
-    "TCachingPoolStateFetcher", bound="CachingPoolStateFetcher"
-)
-
 
 class CachingPool(Pool):
-    def __init__(self, fetcher: TCachingPoolStateFetcher, guid: str) -> None:
+    def __init__(self, fetcher: CachingPoolStateFetcher, guid: str) -> None:
         super().__init__(guid)
         self._fetcher = fetcher
         self._cached_state = self._state
@@ -87,7 +85,7 @@ class CachingPoolStateFetcher(object):
     async def create(
         cls,
         machine: WebsocketMachine,
-    ) -> TCachingPoolStateFetcher:
+    ) -> CachingPoolStateFetcher:
         cpsf = CachingPoolStateFetcher(machine=machine)
         return cpsf
 

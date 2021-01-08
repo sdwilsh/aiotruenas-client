@@ -1,8 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum, unique
-from typing import TypeVar
-
-TState = TypeVar("TState", bound="JailStatus")
 
 
 @unique
@@ -11,7 +10,7 @@ class JailStatus(Enum):
     UP = "up"
 
     @classmethod
-    def fromValue(cls, value: str) -> TState:
+    def fromValue(cls, value: str) -> JailStatus:
         if value == cls.DOWN.value:
             return cls.DOWN
         if value == cls.UP.value:

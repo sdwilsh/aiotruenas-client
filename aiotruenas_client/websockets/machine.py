@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 import ssl
-from typing import Any, Dict, List, Optional, TypeVar
+from typing import Any, Dict, List, Optional
 
 import websockets
 from aiotruenas_client.job import TJobId
@@ -17,8 +19,6 @@ from .protocol import (
     truenas_password_auth_protocol_factory,
 )
 from .virtualmachine import CachingVirtualMachine, CachingVirtualMachineStateFetcher
-
-TCachingMachine = TypeVar("TCachingMachine", bound="CachingMachine")
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class CachingMachine(WebsocketMachine):
         password: Optional[str] = None,
         username: Optional[str] = None,
         secure: bool = True,
-    ) -> TCachingMachine:
+    ) -> CachingMachine:
         m = CachingMachine()
         await m.connect(
             host=host,

@@ -1,15 +1,13 @@
-from typing import Any, Dict, List, TypeVar
+from __future__ import annotations
+
+from typing import Any, Dict, List
 
 from ..virtualmachine import VirtualMachine, VirtualMachineState
 from .interfaces import WebsocketMachine
 
-TCachingVirtualMachineStateFetcher = TypeVar(
-    "TCachingVirtualMachineStateFetcher", bound="CachingVirtualMachineStateFetcher"
-)
-
 
 class CachingVirtualMachine(VirtualMachine):
-    def __init__(self, fetcher: TCachingVirtualMachineStateFetcher, id: int) -> None:
+    def __init__(self, fetcher: CachingVirtualMachineStateFetcher, id: int) -> None:
         super().__init__(id=id)
         self._fetcher = fetcher
         self._cached_state = self._state
@@ -73,7 +71,7 @@ class CachingVirtualMachineStateFetcher(object):
     async def create(
         cls,
         machine: WebsocketMachine,
-    ) -> TCachingVirtualMachineStateFetcher:
+    ) -> CachingVirtualMachineStateFetcher:
         cvmsf = CachingVirtualMachineStateFetcher(machine=machine)
         return cvmsf
 

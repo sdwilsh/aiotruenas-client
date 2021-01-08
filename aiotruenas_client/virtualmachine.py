@@ -1,8 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum, unique
-from typing import TypeVar
-
-TState = TypeVar("TState", bound="VirtualMachineState")
 
 
 @unique
@@ -11,7 +10,7 @@ class VirtualMachineState(Enum):
     RUNNING = "RUNNING"
 
     @classmethod
-    def fromValue(cls, value: str) -> TState:
+    def fromValue(cls, value: str) -> VirtualMachineState:
         if value == cls.STOPPED.value:
             return cls.STOPPED
         if value == cls.RUNNING.value:

@@ -1,8 +1,8 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum, unique
-from typing import Optional, TypeVar
-
-TType = TypeVar("TType", bound="DiskType")
+from typing import Optional
 
 
 @unique
@@ -11,7 +11,7 @@ class DiskType(Enum):
     SSD = "SSD"
 
     @classmethod
-    def fromValue(cls, value: str) -> TType:
+    def fromValue(cls, value: str) -> DiskType:
         if value == cls.HDD.value:
             return cls.HDD
         if value == cls.SSD.value:

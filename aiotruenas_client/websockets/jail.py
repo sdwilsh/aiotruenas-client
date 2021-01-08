@@ -1,17 +1,13 @@
-from typing import Any, Dict, List, TypeVar
+from __future__ import annotations
 
-from aiotruenas_client.job import JobStatus
+from typing import Any, Dict, List
 
 from ..jail import Jail, JailStatus
 from .interfaces import StateFetcher, WebsocketMachine
 
-TCachingJailStateFetcher = TypeVar(
-    "TCachingJailStateFetcher", bound="CachingJailStateFetcher"
-)
-
 
 class CachingJail(Jail):
-    def __init__(self, fetcher: TCachingJailStateFetcher, name: str) -> None:
+    def __init__(self, fetcher: CachingJailStateFetcher, name: str) -> None:
         super().__init__(name=name)
         self._fetcher = fetcher
         self._cached_state = self._state
@@ -59,7 +55,7 @@ class CachingJailStateFetcher(StateFetcher):
     async def create(
         cls,
         machine: WebsocketMachine,
-    ) -> TCachingJailStateFetcher:
+    ) -> CachingJailStateFetcher:
         cjsf = CachingJailStateFetcher(machine=machine)
         return cjsf
 

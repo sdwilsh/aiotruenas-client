@@ -1,8 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum, unique
-from typing import TypeVar
-
-TPoolStatus = TypeVar("TType", bound="PoolStatus")
 
 
 @unique
@@ -19,7 +18,7 @@ class PoolStatus(Enum):
     UNKNOWN = "UNKNOWN"
 
     @classmethod
-    def fromValue(cls, value: str) -> TPoolStatus:
+    def fromValue(cls, value: str) -> PoolStatus:
         if value == cls.DEGRADED.value:
             return cls.DEGRADED
         if value == cls.FAULTED.value:
