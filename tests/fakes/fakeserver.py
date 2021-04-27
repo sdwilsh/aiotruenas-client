@@ -5,7 +5,7 @@ import datetime
 import random
 import string
 import uuid
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Union
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 
 import ejson
 
@@ -159,7 +159,7 @@ class TrueNASServer(object):
             await fail()
 
     async def _send_subscription_messages(
-        self, send: Callable[[object], Coroutine[None]]
+        self, send: Callable[[object], Awaitable[None]]
     ) -> None:
         queue = self._subscription_queue
         while True:
