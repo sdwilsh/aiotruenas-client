@@ -3,19 +3,22 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/ambv/black
-    rev: 20.8b1
+    rev: "21.5b0"
     hooks:
       - id: black
         language_version: python3
   - repo: https://gitlab.com/pycqa/flake8
-    rev: "3.8.3"
+    rev: "3.9.2"
     hooks:
       - id: flake8
+        language_version: python3
   - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
+    rev: "5.8.0"
     hooks:
       - id: isort
+        language_version: python3
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.26.1
+    rev: "v1.26.1"
     hooks:
       - id: yamllint
+        language_version: python3
