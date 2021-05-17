@@ -5,10 +5,10 @@ import logging
 import ssl
 from typing import Any, Dict, List, Optional, cast
 
-import websockets
 from aiotruenas_client.job import TJobId
 from aiotruenas_client.websockets.jail import CachingJail, CachingJailStateFetcher
 from aiotruenas_client.websockets.job import CachingJob, CachingJobFetcher
+from websockets.client import connect
 
 from .disk import CachingDisk, CachingDiskStateFetcher
 from .interfaces import Subscriber, WebsocketMachine
@@ -168,7 +168,7 @@ class CachingMachine(WebsocketMachine):
             context = ssl.SSLContext()
         self._client = cast(
             TrueNASWebSocketClientProtocol,
-            await websockets.connect(
+            await connect(
                 f"{protocol}://{host}/websocket",
                 create_protocol=auth_protocol,
                 ssl=context,

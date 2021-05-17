@@ -10,6 +10,7 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 import ejson
 
 import websockets
+from websockets.server import WebSocketServerProtocol, serve
 
 TMethodHandler = Union[
     Callable[[Any], Any],
@@ -27,7 +28,7 @@ class TrueNASServer(object):
     _username: str
     _password: str
     _api_key: str
-    _serve_handle: Optional[websockets.serve]
+    _serve_handle: Optional[serve]
     # Mapping of topic to subscription id
     _subscriptions: Dict[str, str] = {}
     _subscription_queue: asyncio.Queue
@@ -53,7 +54,7 @@ class TrueNASServer(object):
 
         self._subscription_queue = asyncio.Queue()
 
-        self._serve_handle = websockets.serve(self._handle_messages, "localhost", 8000)
+        self._serve_handle = serve(self._handle_messages, "localhost", 8000)
         asyncio.get_event_loop().run_until_complete(self._serve_handle)
 
     def register_method_handler(
@@ -97,9 +98,7 @@ class TrueNASServer(object):
         """The api_key that will successfully authenticate with the server."""
         return self._api_key
 
-    async def _handle_messages(
-        self, websocket: websockets.protocol.WebSocketCommonProtocol, _path: str
-    ):
+    async def _handle_messages(self, websocket: WebSocketServerProtocol, _path: str):
         async def send(data: object) -> None:
             await websocket.send(ejson.dumps(data))
 

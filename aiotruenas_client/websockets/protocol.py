@@ -8,8 +8,8 @@ from typing import Any, Callable, Dict, List
 
 import ejson
 
-import websockets
 from websockets.client import WebSocketClientProtocol
+from websockets.exceptions import NegotiationError, SecurityError
 
 logger = logging.getLogger(__name__)
 
@@ -73,14 +73,14 @@ class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
         recv = ejson.loads(await self.recv())
         if recv["msg"] != "connected":
             await self.close()
-            raise websockets.exceptions.NegotiationError("Unable to connect.")
+            raise NegotiationError("Unable to connect.")
 
         asyncio.create_task(self._websocket_message_handler())
 
         result = await self._authenticate()
         if not result:
             await self.close()
-            raise websockets.exceptions.SecurityError("Unable to authenticate.")
+            raise SecurityError("Unable to authenticate.")
 
     async def invoke_method(self, method: str, params: List[Any] = []) -> Any:
         id = str(uuid.uuid4())
