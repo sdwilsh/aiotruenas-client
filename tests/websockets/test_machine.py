@@ -1,9 +1,9 @@
 import unittest
 from unittest import IsolatedAsyncioTestCase
 
-import websockets
 from aiotruenas_client.websockets import CachingMachine
 from tests.fakes.fakeserver import CommonQueries, TrueNASServer
+from websockets.exceptions import NegotiationError, SecurityError
 
 
 class TestCachingMachineAuth(IsolatedAsyncioTestCase):
@@ -25,7 +25,7 @@ class TestCachingMachineAuth(IsolatedAsyncioTestCase):
         await machine.close()
 
     async def test_unsuccessful_auth_password(self):
-        with self.assertRaises(websockets.exceptions.SecurityError):
+        with self.assertRaises(SecurityError):
             await CachingMachine.create(
                 self._server.host,
                 username="not a real user",
@@ -42,7 +42,7 @@ class TestCachingMachineAuth(IsolatedAsyncioTestCase):
         await machine.close()
 
     async def test_unsuccessful_auth_api_key(self):
-        with self.assertRaises(websockets.exceptions.SecurityError):
+        with self.assertRaises(SecurityError):
             await CachingMachine.create(
                 self._server.host,
                 api_key="not a real api_key",
