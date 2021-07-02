@@ -26,14 +26,15 @@ logger = logging.getLogger(__name__)
 class CachingMachine(WebsocketMachine):
     """A Machine implementation that connects over websockets and keeps fetched information in-sync with the server."""
 
-    _client: Optional[TrueNASWebSocketClientProtocol] = None
-    _subscribers: List[Subscriber] = []
-
     _disk_fetcher: CachingDiskStateFetcher
     _jail_fetcher: CachingJailStateFetcher
     _job_fetcher: CachingJobFetcher
     _pool_fetcher: CachingPoolStateFetcher
     _vm_fetcher: CachingVirtualMachineStateFetcher
+
+    def __init__(self):
+        self._client: Optional[TrueNASWebSocketClientProtocol] = None
+        self._subscribers: List[Subscriber] = []
 
     @classmethod
     async def create(

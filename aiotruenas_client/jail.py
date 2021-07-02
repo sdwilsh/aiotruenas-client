@@ -19,8 +19,6 @@ class JailStatus(Enum):
 
 
 class Jail(ABC):
-    _name: str
-
     def __init__(self, name: str) -> None:
         self._name = name
 

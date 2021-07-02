@@ -72,14 +72,10 @@ class CachingPool(Pool):
 
 
 class CachingPoolStateFetcher(object):
-    _parent: WebsocketMachine
-    _state: Dict[str, Dict[str, Any]]
-    _cached_pools: List[CachingPool]
-
     def __init__(self, machine: WebsocketMachine) -> None:
         self._parent = machine
-        self._state = {}
-        self._cached_pools = []
+        self._state: Dict[str, Dict[str, Any]] = {}
+        self._cached_pools: List[CachingPool] = []
 
     @classmethod
     async def create(
