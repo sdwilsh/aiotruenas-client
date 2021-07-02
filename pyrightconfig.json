@@ -7,6 +7,10 @@
     "exclude": [
         "**/__pycache__"
     ],
+    "reportUntypedBaseClass": "error",
+    "reportUntypedClassDecorator": "error",
+    "reportUntypedFunctionDecorator": "error",
+    "reportUntypedNamedTuple": "error",
     "reportUnusedClass": "error",
     "reportUnusedFunction": "error",
     "reportUnusedImport": "error",
