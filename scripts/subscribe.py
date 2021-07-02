@@ -61,6 +61,7 @@ async def subscribe(
         api_key=api_key,
         secure=secure,
     )
+    assert machine._client is not None
     queue = await machine._client.subscribe(name)
     while True:
         message = await queue.get()

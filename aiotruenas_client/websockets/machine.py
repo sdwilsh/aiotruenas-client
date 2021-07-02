@@ -180,7 +180,7 @@ class CachingMachine(WebsocketMachine):
 
         This should only be used by internal classes to this library.
         """
-        assert not self.closed
+        assert not self.closed and self._client is not None
         return await self._client.invoke_method(method=method, params=params)
 
     async def _subscribe(self, subscriber: Subscriber, name: str) -> asyncio.Queue:
@@ -188,7 +188,7 @@ class CachingMachine(WebsocketMachine):
 
         This should only be used by internal classes to this library.
         """
-        assert not self.closed
+        assert not self.closed and self._client is not None
         queue = await self._client.subscribe(name=name)
         self._subscribers.append(subscriber)
         return queue
@@ -198,6 +198,6 @@ class CachingMachine(WebsocketMachine):
 
         This should only be used by internal classes to this library.
         """
-        assert not self.closed
+        assert not self.closed and self._client is not None
         await self._client.unsubscribe(name)
         self._subscribers.remove(subscriber)
