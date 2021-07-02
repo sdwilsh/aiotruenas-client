@@ -49,15 +49,14 @@ class SubscriptionData:
 
 
 class TrueNASWebSocketClientProtocol(WebSocketClientProtocol):
-    # Keyed by the id of the invoke message.
-    _invoke_method_futures: Dict[str, asyncio.Future] = {}
-    # Keyed by the id of the subscribing message.
-    _pending_subscription_data: Dict[str, PendingSubscriptionData] = {}
-    # Keyed be the "name" when subscribing, which is the "collection" when data comes in.
-    _subscription_data: Dict[str, SubscriptionData] = {}
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Keyed by the id of the invoke message.
+        self._invoke_method_futures: Dict[str, asyncio.Future] = {}
+        # Keyed by the id of the subscribing message.
+        self._pending_subscription_data: Dict[str, PendingSubscriptionData] = {}
+        # Keyed be the "name" when subscribing, which is the "collection" when data comes in.
+        self._subscription_data: Dict[str, SubscriptionData] = {}
 
     async def handshake(self, *args, **kwargs):
         await WebSocketClientProtocol.handshake(self, *args, **kwargs)
