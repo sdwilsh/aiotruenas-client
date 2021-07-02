@@ -117,22 +117,21 @@ class TestCachingMachineGetSystemInfo(IsolatedAsyncioTestCase):
         self.assertEqual(info["hostname"], HOSTNAME)
 
 
-# TODO: for some undiscovered reason, this test prevents subsequent tests from passing with pytest.
-# class TestCachingMachineClosed(IsolatedAsyncioTestCase):
-#     def setUp(self):
-#         self._server = TrueNASServer()
+class TestCachingMachineClosed(IsolatedAsyncioTestCase):
+    def setUp(self):
+        self._server = TrueNASServer()
 
-#     async def test_closed(self) -> None:
-#         machine = await CachingMachine.create(
-#             self._server.host,
-#             api_key=self._server.api_key,
-#             secure=False,
-#         )
+    async def test_closed(self) -> None:
+        machine = await CachingMachine.create(
+            self._server.host,
+            api_key=self._server.api_key,
+            secure=False,
+        )
 
-#         self.assertFalse(machine.closed)
+        self.assertFalse(machine.closed)
 
-#         await self._server.stop()
-#         self.assertTrue(machine.closed)
+        await self._server.stop()
+        self.assertTrue(machine.closed)
 
 
 if __name__ == "__main__":
