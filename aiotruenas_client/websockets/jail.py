@@ -42,14 +42,10 @@ class CachingJail(Jail):
 
 
 class CachingJailStateFetcher(StateFetcher):
-    _parent: WebsocketMachine
-    _state: Dict[str, Dict[str, Any]]
-    _cached_jails: List[CachingJail]
-
     def __init__(self, machine: WebsocketMachine) -> None:
         self._parent = machine
-        self._state = {}
-        self._cached_jails = []
+        self._state: Dict[str, Dict[str, Any]] = {}
+        self._cached_jails: List[CachingJail] = []
 
     @classmethod
     async def create(

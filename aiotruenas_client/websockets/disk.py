@@ -72,15 +72,12 @@ class CachingDisk(Disk):
 
 
 class CachingDiskStateFetcher(StateFetcher):
-    _parent: WebsocketMachine
-    _state: Dict[str, Dict[str, Any]]
-    _cached_disks: List[CachingDisk]
     _fetch_temperature: bool
 
     def __init__(self, machine: WebsocketMachine) -> None:
         self._parent = machine
-        self._state = {}
-        self._cached_disks = []
+        self._state: Dict[str, Dict[str, Any]] = {}
+        self._cached_disks: List[CachingDisk] = []
 
     @classmethod
     async def create(

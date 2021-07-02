@@ -58,14 +58,10 @@ class CachingVirtualMachine(VirtualMachine):
 
 
 class CachingVirtualMachineStateFetcher(object):
-    _parent: WebsocketMachine
-    _state: Dict[str, Dict[str, Any]]
-    _cached_vms: List[CachingVirtualMachine]
-
     def __init__(self, machine: WebsocketMachine) -> None:
         self._parent = machine
-        self._state = {}
-        self._cached_vms = []
+        self._state: Dict[str, Dict[str, Any]] = {}
+        self._cached_vms: List[CachingVirtualMachine] = []
 
     @classmethod
     async def create(

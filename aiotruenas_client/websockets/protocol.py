@@ -15,9 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class PendingSubscriptionData:
-    _name: str
-    _future: asyncio.Future
-
     def __init__(self, name: str, future: asyncio.Future) -> None:
         self._name = name
         self._future = future
@@ -32,9 +29,6 @@ class PendingSubscriptionData:
 
 
 class SubscriptionData:
-    _id: str
-    _queue: asyncio.Queue
-
     def __init__(self, id: str, queue: asyncio.Queue) -> None:
         self._id = id
         self._queue = queue

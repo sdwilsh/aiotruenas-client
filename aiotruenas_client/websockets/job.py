@@ -43,15 +43,13 @@ class CachingJob(Job):
 
 
 class CachingJobFetcher(StateFetcher, Subscriber):
-    _job_wait_futures: Dict[TJobId, asyncio.Future] = {}
-    _parent: WebsocketMachine
-    # This is probably not the best approach, as this will grow unbounded over time...
-    _state: Dict[TJobId, Dict[str, Any]]
     _subscription_task: asyncio.Task
 
     def __init__(self, machine: WebsocketMachine) -> None:
+        self._job_wait_futures: Dict[TJobId, asyncio.Future] = {}
         self._parent = machine
-        self._state = {}
+        # This is probably not the best approach, as this will grow unbounded over time...
+        self._state: Dict[TJobId, Dict[str, Any]] = {}
 
     @classmethod
     async def create(
