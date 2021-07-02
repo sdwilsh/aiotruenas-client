@@ -36,8 +36,8 @@ class TestProtocolSubscriptions(IsolatedAsyncioTestCase):
         )
 
         try:
-            queue1 = await client1.subscribe(name="test")
-            queue2 = await client2.subscribe(name="test")
+            await client1.subscribe(name="test")
+            await client2.subscribe(name="test")
         finally:
             await client1.close()
             await client2.close()

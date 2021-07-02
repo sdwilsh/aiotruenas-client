@@ -1,19 +1,10 @@
-import datetime
 import unittest
-from typing import Any, Dict, List, Union
 from unittest import IsolatedAsyncioTestCase
-from unittest.mock import Mock
 
 from aiotruenas_client.pool import PoolStatus
 from aiotruenas_client.websockets import CachingMachine
 from aiotruenas_client.websockets.pool import CachingPool
-from tests.fakes.fakeserver import (
-    TDiskQueryResult,
-    TDiskTemperaturesResult,
-    TPoolQueryResult,
-    TrueNASServer,
-    TVmQueryResult,
-)
+from tests.fakes.fakeserver import TrueNASServer
 
 
 class TestPool(IsolatedAsyncioTestCase):

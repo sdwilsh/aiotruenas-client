@@ -9,7 +9,6 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 
 import ejson
 
-import websockets
 from websockets.server import WebSocketServerProtocol, serve
 
 TMethodHandler = Union[
@@ -37,9 +36,9 @@ class TrueNASServer(object):
     _method_handlers: Dict[str, TMethodHandler]
 
     def __init__(self):
-        self._username = "".join(random.choice(string.ascii_letters) for i in range(6))
-        self._password = "".join(random.choice(string.ascii_letters) for i in range(6))
-        self._api_key = "".join(random.choice(string.ascii_letters) for i in range(6))
+        self._username = "".join(random.choice(string.ascii_letters) for _ in range(6))
+        self._password = "".join(random.choice(string.ascii_letters) for _ in range(6))
+        self._api_key = "".join(random.choice(string.ascii_letters) for _ in range(6))
         self._method_handlers = {}
 
         self.register_method_handler(
