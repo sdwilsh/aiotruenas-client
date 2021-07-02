@@ -2,7 +2,55 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum, unique
-from typing import Optional
+from typing import Any, Dict, Optional
+
+
+@unique
+class DatasetPropertySource(Enum):
+    DEFAULT = "DEFAULT"
+    INHERITED = "INHERITED"
+    LOCAL = "LOCAL"
+    NONE = "NONE"
+
+    @classmethod
+    def fromValue(cls, value: str) -> DatasetPropertySource:
+        if value == cls.DEFAULT.value:
+            return cls.DEFAULT
+        if value == cls.INHERITED.value:
+            return cls.INHERITED
+        if value == cls.LOCAL.value:
+            return cls.LOCAL
+        if value == cls.NONE.value:
+            return cls.NONE
+        raise Exception(f"Unexpected dataset property source '{value}'")
+
+
+class DatasetProperty(object):
+    """Represents a Dataset property in TrueNAS"""
+
+    def __init__(self, raw: Dict[str, Any]) -> None:
+        self._parsed_value: Any = raw["parsed"]
+        self._raw_value: str = raw["rawvalue"]
+        self._source: DatasetPropertySource = DatasetPropertySource.fromValue(
+            raw["source"]
+        )
+        self._value: Any = raw["value"]
+
+    @property
+    def parsedValue(self) -> Any:
+        return self._parsed_value
+
+    @property
+    def rawValue(self) -> str:
+        return self._raw_value
+
+    @property
+    def source(self) -> DatasetPropertySource:
+        return self._source
+
+    @property
+    def value(self) -> Any:
+        return self._value
 
 
 @unique
@@ -30,7 +78,7 @@ class Dataset(ABC):
 
     @property
     @abstractmethod
-    def comments(self) -> Optional[str]:
+    def comments(self) -> Optional[DatasetProperty]:
         """The user-provided comments on the dataset."""
 
     @property

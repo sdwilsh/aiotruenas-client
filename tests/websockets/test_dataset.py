@@ -1,7 +1,7 @@
 import unittest
 from unittest import IsolatedAsyncioTestCase
 
-from aiotruenas_client.dataset import DatasetType
+from aiotruenas_client.dataset import DatasetPropertySource, DatasetType
 from aiotruenas_client.websockets import CachingMachine
 from aiotruenas_client.websockets.dataset import CachingDataset
 from tests.fakes.fakeserver import TrueNASServer
@@ -72,7 +72,11 @@ class TestPool(IsolatedAsyncioTestCase):
         self.assertEqual(len(self._machine.datasets), 1)
         dataset = self._machine.datasets[0]
         self.assertEqual(dataset.available_bytes, AVAILABLE_BYTES)
-        self.assertEqual(dataset.comments, COMMENTS)
+        assert dataset.comments
+        self.assertEqual(dataset.comments.parsedValue, COMMENTS)
+        self.assertEqual(dataset.comments.rawValue, COMMENTS)
+        self.assertEqual(dataset.comments.source, DatasetPropertySource.LOCAL)
+        self.assertEqual(dataset.comments.value, COMMENTS)
         self.assertEqual(dataset.compression_ratio, COMPRESSION_RATIO)
         self.assertEqual(dataset.id, DATASET_ID)
         self.assertEqual(dataset.pool_name, POOL_NAME)
@@ -193,7 +197,7 @@ class TestPool(IsolatedAsyncioTestCase):
                     "comments": {
                         "parsed": COMMENTS,
                         "rawvalue": COMMENTS,
-                        "source": "LOCAL",
+                        "source": "INHERITED",
                         "value": COMMENTS,
                     },
                     "compressratio": {
@@ -226,7 +230,11 @@ class TestPool(IsolatedAsyncioTestCase):
         await self._machine.get_datasets()
 
         self.assertEqual(dataset.available_bytes, AVAILABLE_BYTES)
-        self.assertEqual(dataset.comments, COMMENTS)
+        assert dataset.comments
+        self.assertEqual(dataset.comments.parsedValue, COMMENTS)
+        self.assertEqual(dataset.comments.rawValue, COMMENTS)
+        self.assertEqual(dataset.comments.source, DatasetPropertySource.INHERITED)
+        self.assertEqual(dataset.comments.value, COMMENTS)
         self.assertEqual(dataset.compression_ratio, COMPRESSION_RATIO)
         self.assertEqual(dataset.id, DATASET_ID)
         self.assertEqual(dataset.pool_name, POOL_NAME)
