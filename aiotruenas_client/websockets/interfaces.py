@@ -64,21 +64,21 @@ class WebsocketMachine(Machine):
         """Wait for the specified Job from the remote machine to complete, and return it."""
 
     @abstractmethod
-    async def _invoke_method(self, method: str, params: List[Any] = []) -> Any:
+    async def invoke_method(self, method: str, params: List[Any] = []) -> Any:
         """Invokes a method and returns its result.
 
         This should only be used by internal classes to this library.
         """
 
     @abstractmethod
-    async def _subscribe(self, subscriber: Subscriber, name: str) -> asyncio.Queue:
+    async def subscribe(self, subscriber: Subscriber, name: str) -> asyncio.Queue:
         """Subscribes to a topic and populates a `Queue` of data from it.
 
         This should only be used by internal classes to this library.
         """
 
     @abstractmethod
-    async def _unsubscribe(self, subscriber: Subscriber, name: str) -> None:
+    async def unsubscribe(self, subscriber: Subscriber, name: str) -> None:
         """Unsubscribes from a topic.
 
         This should only be used by internal classes to this library.

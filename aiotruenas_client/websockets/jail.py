@@ -14,20 +14,20 @@ class CachingJail(Jail):
 
     async def start(self) -> bool:
         """Starts a stopped jail."""
-        return await self._fetcher._start_jail(self)
+        return await self._fetcher.start_jail(self)
 
     async def stop(self, force: bool = False) -> bool:
         """Stops a running jail."""
-        return await self._fetcher._stop_jail(self, force)
+        return await self._fetcher.stop_jail(self, force)
 
     async def restart(self) -> bool:
         """Restarts a running jail."""
-        return await self._fetcher._restart_jail(self)
+        return await self._fetcher.restart_jail(self)
 
     @property
     def available(self) -> bool:
         """If the jail exists on the server."""
-        return self._name in self._fetcher._state
+        return self._name in self._fetcher._state  # type: ignore
 
     @property
     def status(self) -> JailStatus:
@@ -38,7 +38,7 @@ class CachingJail(Jail):
     @property
     def _state(self) -> Dict[str, Any]:
         """The state of the jail, according to the Machine."""
-        return self._fetcher._get_cached_state(self)
+        return self._fetcher.get_cached_state(self)
 
 
 class CachingJailStateFetcher(StateFetcher):
@@ -66,11 +66,11 @@ class CachingJailStateFetcher(StateFetcher):
         """Returns a list of jails on the host."""
         return self._cached_jails
 
-    async def _start_jail(self, jail: Jail) -> bool:
+    async def start_jail(self, jail: Jail) -> bool:
         if jail.status != JailStatus.DOWN:
             raise RuntimeError(f"Jail {jail.name} is already running.")
 
-        job_id = await self._parent._invoke_method(
+        job_id = await self._parent.invoke_method(
             "jail.start",
             [jail.name],
         )
@@ -79,31 +79,31 @@ class CachingJailStateFetcher(StateFetcher):
             self._state[jail.name]["state"] = JailStatus.UP.value
         return job.result_or_raise_error
 
-    async def _stop_jail(self, jail: Jail, force: bool = False) -> bool:
+    async def stop_jail(self, jail: Jail, force: bool = False) -> bool:
         if jail.status != JailStatus.UP:
             raise RuntimeError(f"Jail {jail.name} is not running.")
 
-        job_id = await self._parent._invoke_method("jail.stop", [jail.name, force])
+        job_id = await self._parent.invoke_method("jail.stop", [jail.name, force])
         job = await self._parent.wait_for_job(id=job_id)
         if job.result:
             self._state[jail.name]["state"] = JailStatus.DOWN.value
         # Stop seems to return `None`, so check for that if we are not throwing.
         return job.result_or_raise_error == None
 
-    async def _restart_jail(self, jail: Jail) -> bool:
+    async def restart_jail(self, jail: Jail) -> bool:
         if jail.status != JailStatus.UP:
             raise RuntimeError(f"Jail {jail.name} is not running.")
 
-        job_id = await self._parent._invoke_method("jail.restart", [jail.name])
+        job_id = await self._parent.invoke_method("jail.restart", [jail.name])
         job = await self._parent.wait_for_job(id=job_id)
         # TODO: update cached state
         return job.result_or_raise_error
 
-    def _get_cached_state(self, jail: Jail) -> Dict[str, Any]:
+    def get_cached_state(self, jail: Jail) -> Dict[str, Any]:
         return self._state[jail.name]
 
     async def _fetch_jails(self) -> Dict[str, Dict[str, Any]]:
-        jails = await self._parent._invoke_method(
+        jails = await self._parent.invoke_method(
             "jail.query",
             [
                 [],

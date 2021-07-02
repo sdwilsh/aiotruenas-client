@@ -153,7 +153,9 @@ class TestDisk(IsolatedAsyncioTestCase):
         )
         await self._machine.get_disks()
         self.assertFalse(disk.available)
-        self.assertEqual(len(self._machine._disk_fetcher._cached_disks), 0)
+        self.assertEqual(
+            len(self._machine._disk_fetcher._cached_disks), 0  # type: ignore
+        )
 
     async def test_unavailable_caching(self) -> None:
         """Certain properites have caching even if no longer available"""
@@ -222,7 +224,7 @@ class TestDisk(IsolatedAsyncioTestCase):
         self.assertIs(original_disk, new_disk)
 
     def test_eq_impl(self) -> None:
-        self._machine._disk_fetcher._state = {
+        self._machine._disk_fetcher._state = {  # type: ignore
             "ada0": {
                 "description": "",
                 "model": "",
@@ -233,8 +235,8 @@ class TestDisk(IsolatedAsyncioTestCase):
                 "type": "SSD",
             }
         }
-        a = CachingDisk(self._machine._disk_fetcher, "ada0")
-        b = CachingDisk(self._machine._disk_fetcher, "ada0")
+        a = CachingDisk(self._machine._disk_fetcher, "ada0")  # type: ignore
+        b = CachingDisk(self._machine._disk_fetcher, "ada0")  # type: ignore
         self.assertEqual(a, b)
 
     async def test_serial_with_edge_whitespace(self) -> None:

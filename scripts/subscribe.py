@@ -60,8 +60,8 @@ async def subscribe(
         api_key=api_key,
         secure=secure,
     )
-    assert machine._client is not None
-    queue = await machine._client.subscribe(name)
+    assert machine._client is not None  # type: ignore
+    queue = await machine._client.subscribe(name)  # type: ignore
     while True:
         message = await queue.get()
         pprint.pprint(message)

@@ -15,7 +15,7 @@ class CachingDisk(Disk):
     @property
     def available(self) -> bool:
         """If the disk exists on the server."""
-        return self._serial in self._fetcher._state
+        return self._serial in self._fetcher._state  # type: ignore
 
     @property
     def description(self) -> str:
@@ -68,7 +68,7 @@ class CachingDisk(Disk):
     @property
     def _state(self) -> Dict[str, Any]:
         """The state of the desk, according to the caching fetcher."""
-        return self._fetcher._get_cached_state(self)
+        return self._fetcher.get_cached_state(self)
 
 
 class CachingDiskStateFetcher(StateFetcher):
@@ -99,11 +99,11 @@ class CachingDiskStateFetcher(StateFetcher):
         """Returns a list of disks attached to the host."""
         return self._cached_disks
 
-    def _get_cached_state(self, disk: Disk) -> Dict[str, Any]:
+    def get_cached_state(self, disk: Disk) -> Dict[str, Any]:
         return self._state[disk.serial]
 
     async def _fetch_disks(self) -> Dict[str, Dict[str, Any]]:
-        disks = await self._parent._invoke_method(
+        disks = await self._parent.invoke_method(
             "disk.query",
             [
                 [],
@@ -121,7 +121,7 @@ class CachingDiskStateFetcher(StateFetcher):
         )
         disks_by_name = {disk["name"]: disk for disk in disks}
         if len(disks_by_name) > 0 and self._fetch_temperature:
-            temps = await self._parent._invoke_method(
+            temps = await self._parent.invoke_method(
                 "disk.temperatures",
                 [
                     [disk for disk in disks_by_name],

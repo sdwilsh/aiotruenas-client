@@ -67,7 +67,7 @@ async def invoke_method(
         api_key=api_key,
         secure=secure,
     )
-    result = await machine._invoke_method(method, args)
+    result = await machine.invoke_method(method, args)
     pprint.pprint(result)
 
 

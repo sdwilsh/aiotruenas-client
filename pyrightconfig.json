@@ -9,6 +9,7 @@
     ],
     "reportFunctionMemberAccess": "error",
     "reportMissingImports": "error",
+    "reportPrivateUsage": "error",
     "reportUntypedBaseClass": "error",
     "reportUntypedClassDecorator": "error",
     "reportUntypedFunctionDecorator": "error",
