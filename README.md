@@ -20,6 +20,7 @@ machine = await TrueNASMachine.create(
     "hostname.of.machine",
     api_key="someapikey"
 )
+datasets = await machine.get_datasets()
 disks = await machine.get_disks()
 jails = await machine.get_jails()
 pools = await machine.get_pools()
@@ -31,6 +32,10 @@ Alternatively, a username and password may also be supplied.
 ### `Machine`
 
 Object representing a TrueNAS instance.
+
+### `Dataset`
+
+Available from `machine.datasets`, contains information about the datasets on the pools on the machine.
 
 ### `Disk`
 

@@ -60,6 +60,8 @@ class TrueNASServer(object):
         self, method_name: str, handler: TMethodHandler, override: bool = False
     ) -> None:
         assert override or method_name not in self._method_handlers
+        if override:
+            assert method_name in self._method_handlers
         self._method_handlers[method_name] = handler
 
     async def stop(self) -> None:

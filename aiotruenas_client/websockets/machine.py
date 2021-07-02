@@ -10,6 +10,7 @@ from aiotruenas_client.websockets.jail import CachingJail, CachingJailStateFetch
 from aiotruenas_client.websockets.job import CachingJob, CachingJobFetcher
 from websockets.client import connect
 
+from .dataset import CachingDataset, CachingDatasetStateFetcher
 from .disk import CachingDisk, CachingDiskStateFetcher
 from .interfaces import Subscriber, WebsocketMachine
 from .pool import CachingPool, CachingPoolStateFetcher
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 class CachingMachine(WebsocketMachine):
     """A Machine implementation that connects over websockets and keeps fetched information in-sync with the server."""
 
+    _dataset_fetcher: CachingDatasetStateFetcher
     _disk_fetcher: CachingDiskStateFetcher
     _jail_fetcher: CachingJailStateFetcher
     _job_fetcher: CachingJobFetcher
@@ -55,6 +57,7 @@ class CachingMachine(WebsocketMachine):
         )
         m._job_fetcher = await CachingJobFetcher.create(machine=m)
 
+        m._dataset_fetcher = await CachingDatasetStateFetcher.create(machine=m)
         m._disk_fetcher = await CachingDiskStateFetcher.create(machine=m)
         m._jail_fetcher = await CachingJailStateFetcher.create(machine=m)
         m._pool_fetcher = await CachingPoolStateFetcher.create(machine=m)
@@ -106,6 +109,15 @@ class CachingMachine(WebsocketMachine):
     def closed(self) -> bool:
         """Indicates if the connection to the server is closed or not."""
         return self._client is None or self._client.closed
+
+    async def get_datasets(self) -> List[CachingDataset]:
+        """Returns a list of datasets on the host."""
+        return await self._dataset_fetcher.get_datasets()
+
+    @property
+    def datasets(self) -> List[CachingDataset]:
+        """Returns a list of cached datasets on the host."""
+        return self._dataset_fetcher.datasets
 
     async def get_disks(self, include_temperature: bool = False) -> List[CachingDisk]:
         """Returns a list of disks attached to the host."""
