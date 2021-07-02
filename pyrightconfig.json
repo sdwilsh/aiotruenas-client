@@ -7,5 +7,9 @@
     "exclude": [
         "**/__pycache__"
     ],
+    "reportUnusedClass": "error",
+    "reportUnusedFunction": "error",
+    "reportUnusedImport": "error",
+    "reportUnusedVariable": "error",
     "typeCheckingMode": "basic"
 }

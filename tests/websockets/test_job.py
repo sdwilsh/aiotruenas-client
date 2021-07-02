@@ -4,7 +4,6 @@ from unittest import IsolatedAsyncioTestCase
 
 from aiotruenas_client.job import JobStatus
 from aiotruenas_client.websockets import CachingMachine
-from aiotruenas_client.websockets.job import CachingJob
 from tests.fakes.fakeserver import TrueNASServer
 
 

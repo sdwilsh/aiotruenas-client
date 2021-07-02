@@ -2,8 +2,8 @@ import unittest
 from unittest import IsolatedAsyncioTestCase
 
 from aiotruenas_client.websockets import CachingMachine
-from tests.fakes.fakeserver import CommonQueries, TrueNASServer
-from websockets.exceptions import NegotiationError, SecurityError
+from tests.fakes.fakeserver import TrueNASServer
+from websockets.exceptions import SecurityError
 
 
 class TestCachingMachineAuth(IsolatedAsyncioTestCase):
