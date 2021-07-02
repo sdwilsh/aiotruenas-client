@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
+from .dataset import Dataset
 from .disk import Disk
 from .jail import Jail
 from .job import Job, TJobId
@@ -13,6 +14,10 @@ class Machine(ABC):
     @abstractmethod
     async def create():
         """Create and validate authentication with the concrete implementation of this class."""
+
+    @abstractmethod
+    async def get_datasets(self) -> List[Dataset]:
+        """Get the datasets on the remote machine."""
 
     @abstractmethod
     async def get_disks(self, include_temperature: bool) -> List[Disk]:
