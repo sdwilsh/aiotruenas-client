@@ -21,6 +21,7 @@ machine = await TrueNASMachine.create(
     api_key="someapikey"
 )
 disks = await machine.get_disks()
+jails = await machine.get_jails()
 pools = await machine.get_pools()
 vms = await machine.get_vms()
 ```
@@ -34,6 +35,10 @@ Object representing a TrueNAS instance.
 ### `Disk`
 
 Available from `machine.disks`, contains information about the disks attached to the machine.
+
+### `Jail`
+
+Available from `machine.jails`, contains information about the jails available on the machine.
 
 ### `Pool`
 
@@ -91,7 +96,6 @@ python scripts/subscribe.py reporting.realtime
 ```
 
 Run either with -h to see additional options.
-
 
 ### Testing
 
