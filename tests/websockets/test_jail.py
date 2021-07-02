@@ -320,9 +320,11 @@ class TestJail(IsolatedAsyncioTestCase):
         self.assertTrue(await jail.restart())
 
     def test_eq_impl(self) -> None:
-        self._machine._jail_fetcher._state = {"jail01": {"id": "jail01", "state": "up"}}
-        a = CachingJail(self._machine._jail_fetcher, "jail01")
-        b = CachingJail(self._machine._jail_fetcher, "jail01")
+        self._machine._jail_fetcher._state = {  # type: ignore
+            "jail01": {"id": "jail01", "state": "up"}
+        }
+        a = CachingJail(self._machine._jail_fetcher, "jail01")  # type: ignore
+        b = CachingJail(self._machine._jail_fetcher, "jail01")  # type: ignore
         self.assertEqual(a, b)
 
 

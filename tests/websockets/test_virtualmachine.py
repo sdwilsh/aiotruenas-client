@@ -313,7 +313,7 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
         self.assertTrue(await vm.restart())
 
     def test_eq_impl(self) -> None:
-        self._machine._vm_fetcher._state = {
+        self._machine._vm_fetcher._state = {  # type: ignore
             "42": {
                 "description": "",
                 "id": 42,
@@ -321,8 +321,8 @@ class TestVirtualMachine(IsolatedAsyncioTestCase):
                 "status": {"pid": 10, "state": "RUNNING"},
             }
         }
-        a = CachingVirtualMachine(self._machine._vm_fetcher, 42)
-        b = CachingVirtualMachine(self._machine._vm_fetcher, 42)
+        a = CachingVirtualMachine(self._machine._vm_fetcher, 42)  # type: ignore
+        b = CachingVirtualMachine(self._machine._vm_fetcher, 42)  # type: ignore
         self.assertEqual(a, b)
 
 

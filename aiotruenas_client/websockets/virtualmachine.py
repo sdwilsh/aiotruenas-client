@@ -14,20 +14,20 @@ class CachingVirtualMachine(VirtualMachine):
 
     async def start(self, overcommit: bool = False) -> bool:
         """Starts a stopped virtual machine."""
-        return await self._fetcher._start_vm(self, overcommit)
+        return await self._fetcher.start_vm(self, overcommit)
 
     async def stop(self, force: bool = False) -> bool:
         """Stops a running virtual machine."""
-        return await self._fetcher._stop_vm(self, force)
+        return await self._fetcher.stop_vm(self, force)
 
     async def restart(self) -> bool:
         """Restarts a running virtual machine."""
-        return await self._fetcher._restart_vm(self)
+        return await self._fetcher.restart_vm(self)
 
     @property
     def available(self) -> bool:
         """If the virtual machine exists on the server."""
-        return str(self._id) in self._fetcher._state
+        return str(self._id) in self._fetcher._state  # type: ignore
 
     @property
     def description(self) -> str:
@@ -54,7 +54,7 @@ class CachingVirtualMachine(VirtualMachine):
     @property
     def _state(self) -> Dict[str, Any]:
         """The state of the virtual machine, according to the Machine."""
-        return self._fetcher._get_cached_state(self)
+        return self._fetcher.get_cached_state(self)
 
 
 class CachingVirtualMachineStateFetcher(object):
@@ -82,14 +82,14 @@ class CachingVirtualMachineStateFetcher(object):
         """Returns a list of virtual machines on the host."""
         return self._cached_vms
 
-    async def _start_vm(self, vm: VirtualMachine, overcommit: bool = False) -> bool:
-        return await self._parent._invoke_method(
+    async def start_vm(self, vm: VirtualMachine, overcommit: bool = False) -> bool:
+        return await self._parent.invoke_method(
             "vm.start",
             [vm.id, {"overcommit": overcommit}],
         )
 
-    async def _stop_vm(self, vm: VirtualMachine, force: bool = False) -> bool:
-        job_id = await self._parent._invoke_method(
+    async def stop_vm(self, vm: VirtualMachine, force: bool = False) -> bool:
+        job_id = await self._parent.invoke_method(
             "vm.stop", [vm.id, {"force_after_timeout": force}]
         )
         job = await self._parent.wait_for_job(id=job_id)
@@ -97,18 +97,18 @@ class CachingVirtualMachineStateFetcher(object):
         # Stop seems to return `None`, so check for that if we are not throwing.
         return job.result_or_raise_error == None
 
-    async def _restart_vm(self, vm: VirtualMachine) -> bool:
-        job_id = await self._parent._invoke_method("vm.restart", [vm.id])
+    async def restart_vm(self, vm: VirtualMachine) -> bool:
+        job_id = await self._parent.invoke_method("vm.restart", [vm.id])
         job = await self._parent.wait_for_job(id=job_id)
         self._state[str(vm.id)]["status"] = await self._fetch_vm_status(vm)
         # Restart seems to return `None`, so check for that if we are not throwing.
         return job.result_or_raise_error == None
 
-    def _get_cached_state(self, vm: VirtualMachine) -> Dict[str, Any]:
+    def get_cached_state(self, vm: VirtualMachine) -> Dict[str, Any]:
         return self._state[str(vm.id)]
 
     async def _fetch_vms(self) -> Dict[str, Dict[str, Any]]:
-        vms = await self._parent._invoke_method(
+        vms = await self._parent.invoke_method(
             "vm.query",
             [
                 [],
@@ -125,7 +125,7 @@ class CachingVirtualMachineStateFetcher(object):
         return {str(vm["id"]): vm for vm in vms}
 
     async def _fetch_vm_status(self, vm: VirtualMachine) -> Dict[str, Any]:
-        return await self._parent._invoke_method(
+        return await self._parent.invoke_method(
             "vm.status",
             [
                 vm.id,

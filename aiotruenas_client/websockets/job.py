@@ -39,7 +39,7 @@ class CachingJob(Job):
     @property
     def _state(self) -> Dict[str, Any]:
         """The state of the job, according to the fetcher."""
-        return self._fetcher._get_cached_state(self)
+        return self._fetcher.get_cached_state(self)
 
 
 class CachingJobFetcher(StateFetcher, Subscriber):
@@ -57,7 +57,7 @@ class CachingJobFetcher(StateFetcher, Subscriber):
         machine: WebsocketMachine,
     ) -> CachingJobFetcher:
         cjf = CachingJobFetcher(machine=machine)
-        queue = await machine._subscribe(cjf, "core.get_jobs")
+        queue = await machine.subscribe(cjf, "core.get_jobs")
         cjf._subscription_task = asyncio.create_task(
             cjf._subscription_queue_processor(queue)
         )
@@ -65,7 +65,7 @@ class CachingJobFetcher(StateFetcher, Subscriber):
 
     async def unsubscribe(self) -> None:
         self._subscription_task.cancel()
-        await self._parent._unsubscribe(self, "core.get_jobs")
+        await self._parent.unsubscribe(self, "core.get_jobs")
 
         # Cancel all futures that were waiting for a job to complete.
         for future in self._job_wait_futures.values():
@@ -74,7 +74,7 @@ class CachingJobFetcher(StateFetcher, Subscriber):
 
     async def get_job(self, id: TJobId) -> CachingJob:
         if id not in self._state:
-            jobs = await self._parent._invoke_method("core.get_jobs", ["id", "=", id])
+            jobs = await self._parent.invoke_method("core.get_jobs", ["id", "=", id])
             self._state[id] = jobs[0]
 
         return CachingJob(fetcher=self, id=id, method=self._state[id]["method"])
@@ -89,7 +89,7 @@ class CachingJobFetcher(StateFetcher, Subscriber):
         assert id in self._state
         return CachingJob(fetcher=self, id=id, method=self._state[id]["method"])
 
-    def _get_cached_state(self, job: Job) -> Dict[str, Any]:
+    def get_cached_state(self, job: Job) -> Dict[str, Any]:
         return self._state[job.id]
 
     async def _subscription_queue_processor(self, queue: asyncio.Queue) -> None:

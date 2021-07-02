@@ -15,7 +15,7 @@ class CachingPool(Pool):
     @property
     def available(self) -> bool:
         """If the pool exists on the Machine."""
-        return self._guid in self._fetcher._state
+        return self._guid in self._fetcher._state  # type: ignore
 
     @property
     def encrypt(self) -> int:
@@ -68,7 +68,7 @@ class CachingPool(Pool):
     @property
     def _state(self) -> Dict[str, Any]:
         """The state of the pool, according to the Machine."""
-        return self._fetcher._get_cached_state(self)
+        return self._fetcher.get_cached_state(self)
 
 
 class CachingPoolStateFetcher(object):
@@ -96,11 +96,11 @@ class CachingPoolStateFetcher(object):
         """Returns a list of pools known to the host."""
         return self._cached_pools
 
-    def _get_cached_state(self, pool: Pool) -> Dict[str, Any]:
+    def get_cached_state(self, pool: Pool) -> Dict[str, Any]:
         return self._state[pool.guid]
 
     async def _fetch_pools(self) -> Dict[str, Dict[str, Any]]:
-        pools = await self._parent._invoke_method(
+        pools = await self._parent.invoke_method(
             "pool.query",
             [
                 [],
