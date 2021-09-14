@@ -27,7 +27,9 @@ class CachingDataset(Dataset):
     @property
     def comments(self) -> Optional[DatasetProperty]:
         """The user-provided comments on the dataset."""
-        return self._get_property("comments")
+        property = self._get_property("comments")
+        assert property is not None
+        return property.parsedValue
 
     @property
     def compression_ratio(self) -> float:
