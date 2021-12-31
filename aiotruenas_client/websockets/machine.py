@@ -90,6 +90,7 @@ class CachingMachine(WebsocketMachine):
             raise AssertionError
 
         await self._connect(auth_protocol, host, secure)
+        logger.debug("Connected to %s.", host)
 
     async def close(self) -> None:
         """Closes the conenction to the server."""
@@ -103,11 +104,20 @@ class CachingMachine(WebsocketMachine):
                     exc_info=exc,
                 )
         await self._client.close()
+        logger.debug("Connection closed to %s", self._client.remote_address[0])
         self._client = None
 
     @property
     def closed(self) -> bool:
         """Indicates if the connection to the server is closed or not."""
+        if (not self._client is None) and self._client.closed:
+            # Log some additional information to help debug why a connection might be unexpectedly closed.
+            logger.debug(
+                "%s closed with code %d (%s)",
+                self._client.side,
+                self._client.close_code,
+                self._client.close_reason or "[no reason]",
+            )
         return self._client is None or self._client.closed
 
     async def get_datasets(self) -> List[CachingDataset]:
