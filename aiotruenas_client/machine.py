@@ -23,6 +23,7 @@ class Machine(ABC):
     async def get_disks(self, include_temperature: bool) -> List[Disk]:
         """Get the disks on the remote machine."""
 
+    @abstractmethod
     async def get_jails(self) -> List[Jail]:
         """Get the jails on the remote machine."""
 
