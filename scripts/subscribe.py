@@ -12,7 +12,12 @@ def init_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Subscribe to topics on a remote TrueNAS machine.",
     )
-    parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Include websockets logging",
+    )
     parser.add_argument(
         "-i",
         "--insecure",
@@ -41,6 +46,12 @@ def init_argparse() -> argparse.ArgumentParser:
         "-a",
         help="The api_key to authenticiate with.  Loads from .auth.yaml if not present.",
     )
+    parser.add_argument(
+        "--log-level",
+        help="The python logging level to print for this library.",
+        default="error",
+        choices=["debug", "warning", "error"],
+    )
     return parser
 
 
@@ -68,9 +79,25 @@ async def subscribe(
         queue.task_done()
 
 
+def getLogLevel(parsed_value: str) -> int:
+    if parsed_value == "debug":
+        return logging.DEBUG
+    if parsed_value == "warning":
+        return logging.WARNING
+    if parsed_value == "error":
+        return logging.ERROR
+
+    raise ValueError("unepected logging level")
+
+
 if __name__ == "__main__":
     parser = init_argparse()
     args = parser.parse_args()
+
+    library_logger = logging.getLogger("aiotruenas_client")
+    library_logger.setLevel(getLogLevel(args.log_level))
+    library_logger.addHandler(logging.StreamHandler())
+
     if args.verbose:
         logger = logging.getLogger("websockets")
         logger.setLevel(logging.DEBUG)

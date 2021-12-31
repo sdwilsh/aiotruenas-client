@@ -90,7 +90,10 @@ class CachingMachine(WebsocketMachine):
             raise AssertionError
 
         await self._connect(auth_protocol, host, secure)
-        logger.debug("Connected to %s.", host)
+        assert self._client is not None
+        ip_address = self._client.remote_address[0]
+        port = self._client.remote_address[1]
+        logger.debug("Connected to %s on port %d.", ip_address, port)
 
     async def close(self) -> None:
         """Closes the conenction to the server."""
@@ -103,8 +106,10 @@ class CachingMachine(WebsocketMachine):
                     "Caught exception while closing connection.",
                     exc_info=exc,
                 )
+        ip_address = self._client.remote_address[0]
+        port = self._client.remote_address[1]
         await self._client.close()
-        logger.debug("Connection closed to %s", self._client.remote_address[0])
+        logger.debug("Connection closed to %s on port %d", ip_address, port)
         self._client = None
 
     @property
