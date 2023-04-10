@@ -1,7 +1,7 @@
 black==23.3.0
 flake8==5.0.4
 isort==5.12.0
-pre-commit==2.21.0
+pre-commit==3.2.2
 pytest==7.3.0
 pyyaml==6.0
 yamllint==1.30.0
