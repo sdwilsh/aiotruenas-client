@@ -23,7 +23,6 @@ TVmQueryResult = List[Dict[str, Any]]
 
 
 class TrueNASServer(object):
-
     _username: str
     _password: str
     _api_key: str
