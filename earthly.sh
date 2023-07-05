@@ -7,6 +7,6 @@ docker run \
     -t \
     -v "$(pwd)":/workspace \
     -v earthly-tmp:/tmp/earthly:rw \
-    earthly/earthly:v0.7.9 \
+    earthly/earthly:v0.7.10 \
     --allow-privileged \
     "$@"
