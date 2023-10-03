@@ -3,7 +3,7 @@ FROM alpine
 
 python-requirements:
     # renovate: datasource=docker depName=python versioning=docker
-    ARG PYTHON_VERSION=3.11
+    ARG PYTHON_VERSION=3.12
     FROM python:$PYTHON_VERSION
     WORKDIR /usr/src/app
     COPY . .
