@@ -18,7 +18,7 @@ repos:
       - id: isort
         language_version: python3
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: "v1.32.0"
+    rev: "v1.33.0"
     hooks:
       - id: yamllint
         language_version: python3
