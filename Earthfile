@@ -24,7 +24,7 @@ pre-commit-validate:
 
 pyright-validate:
     # renovate: datasource=pypi depName=pyright
-    ARG PYRIGHT_VERSION=1.1.374
+    ARG PYRIGHT_VERSION=1.1.375
     FROM +python-dev-requirements
     WORKDIR /usr/src/app
     RUN pip install --no-cache-dir pyright==$PYRIGHT_VERSION
